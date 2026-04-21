@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GradQuest Services</title>
+  <style>
+    :root {
+      --bg: #0f1722;
+      --panel: #182435;
+      --panel-2: #24364d;
+      --text: #f7efe2;
+      --muted: #c7baa7;
+      --line: rgba(247, 239, 226, 0.14);
+      --accent: #d68b2f;
+      --accent-2: #8d2f24;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Noto Serif SC", "Source Han Serif SC", "Songti SC", serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(214, 139, 47, 0.14), transparent 28%),
+        radial-gradient(circle at right top, rgba(141, 47, 36, 0.16), transparent 24%),
+        linear-gradient(180deg, #101927, var(--bg));
+    }
+    .shell {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 36px 20px 48px;
+    }
+    .hero {
+      padding: 28px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(24, 36, 53, 0.96), rgba(36, 54, 77, 0.96));
+      border: 1px solid var(--line);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.26);
+    }
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      letter-spacing: 0.04em;
+    }
+    .hero p {
+      margin: 12px 0 0;
+      max-width: 760px;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .card {
+      padding: 20px;
+      border-radius: 20px;
+      background: linear-gradient(180deg, rgba(24, 36, 53, 0.96), rgba(20, 30, 44, 0.96));
+      border: 1px solid var(--line);
+    }
+    .card h2 {
+      margin: 0;
+      font-size: 1.25rem;
+    }
+    .card p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      line-height: 1.65;
+      min-height: 88px;
+    }
+    .cta {
+      display: inline-block;
+      margin-top: 14px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      color: var(--text);
+      text-decoration: none;
+      border: 1px solid rgba(247, 239, 226, 0.18);
+      background: linear-gradient(90deg, rgba(214, 139, 47, 0.22), rgba(141, 47, 36, 0.22));
+    }
+    .note {
+      margin-top: 22px;
+      padding: 16px 18px;
+      border-radius: 18px;
+      background: rgba(247, 239, 226, 0.05);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      color: #ffe0af;
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="hero">
+      <h1>GradQuest Public Services</h1>
+      <p>这里是公开访问入口。当前保留两个方向：原始 GradQuest 网页游戏，以及新的多玩法剧情模拟器工作台。后者适合继续扩展成对外演示页、灰度页，或者未来 API 服务的前端壳。</p>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>剧情模拟器工作台</h2>
+        <p>多主玩法并存，包含青椒生存、创业转型、电竞俱乐部、独立电影、灾后重建、校园改革，以及狗血逆袭暴富人生模拟器。</p>
+        <a class="cta" href="./scenario_sandbox.html">打开工作台</a>
+      </article>
+
+      <article class="card">
+        <h2>GradQuest 原始游戏</h2>
+        <p>保留当前项目主玩法入口，适合继续作为 PhD Life Simulator 的默认首页和历史版本主站。</p>
+        <a class="cta" href="./index.html">打开主游戏</a>
+      </article>
+    </section>
+
+    <section class="note">
+      GitHub Pages 发布后，公开地址通常是：
+      <br>
+      <code>https://&lt;用户名&gt;.github.io/&lt;仓库名&gt;/services.html</code>
+      <br>
+      对应剧情模拟器地址是：
+      <br>
+      <code>https://&lt;用户名&gt;.github.io/&lt;仓库名&gt;/scenario_sandbox.html</code>
+    </section>
+  </div>
+</body>
+</html>

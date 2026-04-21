@@ -1,0 +1,1825 @@
+window.SCENARIO_PACK = {
+  "version": "0.2.0",
+  "description": "多主玩法并存的场景包，每条主玩法都有独特资源、动作、事件与结局。",
+  "outer_prompt_contract": {
+    "instruction": "把用户主题编译为可执行、确定性的规则，而不是逐回合编写剧情结果。",
+    "required_sections": [
+      "initial_state",
+      "actions",
+      "random_events",
+      "win_conditions",
+      "fail_conditions",
+      "opening_prompt"
+    ],
+    "constraints": [
+      "所有数值字段必须可被 JSON 序列化。",
+      "每个 action 必须显式声明 cost/effect/desc。",
+      "胜负条件必须是可计算表达式。",
+      "每个 featured 场景都要有独特资源和独特叙事语气。"
+    ]
+  },
+  "scenarios": [
+    {
+      "id": "dogblood_riches",
+      "title": "无厘头狗血逆袭暴富人生模拟器",
+      "genre": "狗血爽文",
+      "core_loop": "越惨越离谱-越离谱越暴富-一路反转到收尾",
+      "initial_state": {
+        "wealth": 0,
+        "drama": 32,
+        "clue": 1,
+        "aura": 18,
+        "dignity": 40,
+        "nemesis": 26,
+        "round_count": 1,
+        "max_time": 20
+      },
+      "actions": [
+        {
+          "id": "dogblood_dynamic",
+          "name": "动态选项池",
+          "category": "service",
+          "cost": {},
+          "effect": {},
+          "desc": "由专属服务按回合生成本轮剧情选项。"
+        }
+      ],
+      "random_events": [],
+      "win_conditions": [
+        "round_count > max_time"
+      ],
+      "fail_conditions": [],
+      "opening_prompt": "悠悠，28 岁，北京打工社畜，理性克制又社恐，热衷美学创作、自我探索和隐私安全。今天你被老板用“呼吸影响公司风水”这种离谱理由开除，租房门口还摆着你被房东扔出来的两个收纳箱。更离谱的是，你最常用来画 moodboard 的平板夹层里，居然多出一张印着烫金火漆的黑卡，上面写着：'恭喜你，已被卷入第 77 号暴富继承测试。签字可领第一笔狗血启动资金。'",
+      "metadata": {
+        "featured": true,
+        "mode": "dogblood",
+        "institution": "逆袭暴富命运管理局",
+        "job_title": "天选倒霉蛋 / 候补暴富继承人",
+        "homepage_blurb": "人物档案：悠悠，28 岁，北京社畜，细腻、社恐、完美主义、理性克制又容易急躁，喜欢美学创作、自我探索，极度在意隐私安全。",
+        "month_label": "狗血回合",
+        "hero_keys": [
+          "wealth",
+          "drama",
+          "clue",
+          "aura"
+        ],
+        "featured_keys": [
+          "dignity",
+          "nemesis",
+          "round_count"
+        ],
+        "focus_labels": {
+          "wealth": "暴富值",
+          "drama": "狗血浓度",
+          "clue": "暴富线索",
+          "aura": "逆袭气场",
+          "dignity": "体面值",
+          "nemesis": "前任老板存在感",
+          "round_count": "狗血回合"
+        },
+        "profile": {
+          "name": "悠悠",
+          "age": 28,
+          "city": "北京",
+          "job": "打工社畜",
+          "traits": [
+            "细腻",
+            "社恐",
+            "完美主义",
+            "理性克制",
+            "易急躁"
+          ],
+          "interests": [
+            "美学创作",
+            "自我探索",
+            "独处",
+            "持续自我优化"
+          ],
+          "taboos": [
+            "隐私泄露",
+            "粗糙审美",
+            "高压控制"
+          ]
+        }
+      }
+    },
+    {
+      "id": "qingjiao_sim",
+      "title": "青椒生存模拟器",
+      "genre": "高校职业",
+      "core_loop": "带学生-申项目-发论文-保住教职",
+      "initial_state": {
+        "papers": 1,
+        "grants": 0,
+        "students": 2,
+        "reputation": 28,
+        "energy": 64,
+        "sanity": 58,
+        "family": 52,
+        "admin": 36,
+        "burnout": 24,
+        "teaching": 46,
+        "tenure_clock": 1,
+        "max_time": 12
+      },
+      "actions": [
+        {
+          "id": "write_paper",
+          "name": "熬夜改论文",
+          "category": "research",
+          "cost": {
+            "energy": 12,
+            "sanity": 7,
+            "family": 3
+          },
+          "effect": {
+            "papers": 1,
+            "reputation": 7,
+            "burnout": 9
+          },
+          "desc": "产出最直接，但很伤命。"
+        },
+        {
+          "id": "apply_grant",
+          "name": "写基金本子",
+          "category": "grant",
+          "cost": {
+            "energy": 10,
+            "sanity": 5
+          },
+          "effect": {
+            "grants": 1,
+            "reputation": 5,
+            "burnout": 6
+          },
+          "desc": "评审像开盲盒，但中了就能续命。"
+        },
+        {
+          "id": "mentor_students",
+          "name": "开组会带学生",
+          "category": "mentorship",
+          "cost": {
+            "energy": 8
+          },
+          "effect": {
+            "students": 1,
+            "reputation": 3,
+            "teaching": 4
+          },
+          "desc": "慢热型投资，后劲很大。"
+        },
+        {
+          "id": "socialize",
+          "name": "陪笑套磁",
+          "category": "social",
+          "cost": {
+            "sanity": 4,
+            "family": 2
+          },
+          "effect": {
+            "reputation": 6,
+            "admin": -4
+          },
+          "desc": "脸上是笑，心里是 KPI。"
+        },
+        {
+          "id": "teach",
+          "name": "认真备课",
+          "category": "teaching",
+          "cost": {
+            "energy": 7,
+            "sanity": 3
+          },
+          "effect": {
+            "teaching": 8,
+            "reputation": 2,
+            "burnout": 3
+          },
+          "desc": "学生会感谢你，系统不会。"
+        },
+        {
+          "id": "rest",
+          "name": "短暂做人",
+          "category": "recovery",
+          "cost": {
+            "reputation": 1
+          },
+          "effect": {
+            "energy": 16,
+            "sanity": 14,
+            "family": 10,
+            "burnout": -12
+          },
+          "desc": "今晚不回邮件，先保住人格。"
+        }
+      ],
+      "random_events": [
+        {
+          "id": "reviewer_2",
+          "probability": 0.22,
+          "message": "审稿人二号说你的工作“缺乏足够新意”，但没有指出哪里不新。",
+          "effect": {
+            "sanity": -8,
+            "burnout": 6
+          }
+        },
+        {
+          "id": "student_breakthrough",
+          "probability": 0.18,
+          "message": "学生突然把实验跑通了，还说“老师这不是很简单吗”。",
+          "effect": {
+            "papers": 1,
+            "reputation": 5,
+            "sanity": 3
+          }
+        },
+        {
+          "id": "admin_meeting",
+          "probability": 0.2,
+          "message": "院里临时通知开会，主题依然是“高质量发展”。",
+          "effect": {
+            "energy": -6,
+            "admin": 10,
+            "burnout": 5
+          }
+        },
+        {
+          "id": "home_call",
+          "probability": 0.16,
+          "message": "家里来电问你周末能不能不要再带电脑回去。",
+          "effect": {
+            "family": -8,
+            "sanity": -3
+          }
+        }
+      ],
+      "win_conditions": [
+        "papers >= 6",
+        "grants >= 2",
+        "reputation >= 70",
+        "tenure_clock <= max_time",
+        "sanity > 0"
+      ],
+      "fail_conditions": [
+        "sanity <= 0",
+        "energy <= 0",
+        "family <= 0",
+        "burnout >= 100",
+        "admin >= 100",
+        "tenure_clock > max_time"
+      ],
+      "opening_prompt": "入职第三年，你的非升即走倒计时已经开始。学院说重视人才，邮件里却只写着本年度考核指标。",
+      "metadata": {
+        "featured": true,
+        "mode": "qingjiao",
+        "institution": "东亚新型研究大学",
+        "job_title": "预聘副教授",
+        "homepage_blurb": "研究方向：机器学习、复杂系统与如何在周末假装不上班。",
+        "month_label": "考核年",
+        "hero_keys": [
+          "papers",
+          "grants",
+          "students",
+          "reputation"
+        ],
+        "featured_keys": [
+          "energy",
+          "sanity",
+          "family",
+          "burnout",
+          "admin",
+          "teaching",
+          "tenure_clock"
+        ],
+        "focus_labels": {
+          "papers": "论文",
+          "grants": "项目",
+          "students": "学生",
+          "reputation": "声望",
+          "energy": "精力",
+          "sanity": "心气",
+          "family": "家庭值",
+          "admin": "行政压力",
+          "burnout": "倦怠",
+          "teaching": "教学评价",
+          "tenure_clock": "考核年"
+        }
+      }
+    },
+    {
+      "id": "esports_manager",
+      "title": "电竞俱乐部赛季",
+      "genre": "体育运营",
+      "core_loop": "训练-运营-赛训-冲冠",
+      "initial_state": {
+        "wins": 1,
+        "sponsors": 2,
+        "synergy": 42,
+        "stamina": 68,
+        "morale": 61,
+        "fanbase": 35,
+        "meta_read": 40,
+        "public_pressure": 24,
+        "injuries": 8,
+        "season_week": 1,
+        "max_time": 10
+      },
+      "actions": [
+        {
+          "id": "scrim",
+          "name": "高强度训练赛",
+          "category": "training",
+          "cost": {
+            "stamina": 12,
+            "morale": 4
+          },
+          "effect": {
+            "wins": 1,
+            "synergy": 7,
+            "injuries": 5
+          },
+          "desc": "短期见效，但手腕和情绪都在报警。"
+        },
+        {
+          "id": "vod_review",
+          "name": "通宵复盘",
+          "category": "strategy",
+          "cost": {
+            "stamina": 8,
+            "morale": 3
+          },
+          "effect": {
+            "meta_read": 10,
+            "synergy": 4
+          },
+          "desc": "版本理解会变强，但大家都更想辞职。"
+        },
+        {
+          "id": "brand_ops",
+          "name": "营业整活",
+          "category": "operations",
+          "cost": {
+            "morale": 2
+          },
+          "effect": {
+            "fanbase": 10,
+            "sponsors": 1,
+            "public_pressure": 4
+          },
+          "desc": "热度上去了，舆论也跟着上去了。"
+        },
+        {
+          "id": "sports_rehab",
+          "name": "理疗轮休",
+          "category": "recovery",
+          "cost": {
+            "wins": 1
+          },
+          "effect": {
+            "stamina": 18,
+            "injuries": -12,
+            "morale": 8
+          },
+          "desc": "本周可能少赢一场，但能多活半个赛段。"
+        },
+        {
+          "id": "mental_reset",
+          "name": "队内谈心",
+          "category": "recovery",
+          "cost": {
+            "fanbase": 1
+          },
+          "effect": {
+            "morale": 14,
+            "synergy": 6,
+            "public_pressure": -6
+          },
+          "desc": "不一定解决问题，但至少不让问题继续发酵。"
+        },
+        {
+          "id": "big_match",
+          "name": "押注焦点战",
+          "category": "competition",
+          "cost": {
+            "stamina": 10,
+            "morale": 6
+          },
+          "effect": {
+            "wins": 2,
+            "fanbase": 12,
+            "public_pressure": 8
+          },
+          "desc": "赢了就是热搜，输了也是热搜。"
+        }
+      ],
+      "random_events": [
+        {
+          "id": "patch",
+          "probability": 0.2,
+          "message": "版本突然更新，你们练了一周的体系当场退休。",
+          "effect": {
+            "meta_read": -8,
+            "morale": -4
+          }
+        },
+        {
+          "id": "super_rookie",
+          "probability": 0.16,
+          "message": "青训里冒出一个怪物新人，队内气氛微妙地好了起来。",
+          "effect": {
+            "synergy": 8,
+            "wins": 1
+          }
+        },
+        {
+          "id": "weibo_storm",
+          "probability": 0.2,
+          "message": "赛后微博炸了，热搜前十里有四条在问你会不会 BP。",
+          "effect": {
+            "public_pressure": 12,
+            "morale": -6
+          }
+        },
+        {
+          "id": "sponsor_call",
+          "probability": 0.14,
+          "message": "赞助商打来电话，语气比成绩表还冷静。",
+          "effect": {
+            "sponsors": -1,
+            "public_pressure": 6
+          }
+        }
+      ],
+      "win_conditions": [
+        "wins >= 12",
+        "synergy >= 70",
+        "public_pressure < 70",
+        "season_week <= max_time"
+      ],
+      "fail_conditions": [
+        "stamina <= 0",
+        "morale <= 0",
+        "injuries >= 100",
+        "public_pressure >= 100",
+        "season_week > max_time"
+      ],
+      "opening_prompt": "赛季开了，你的队员状态起伏像心电图。老板只问成绩，粉丝只看热搜，你得在舆论和版本之间抢出一个冠军窗口。",
+      "metadata": {
+        "featured": true,
+        "mode": "esports",
+        "institution": "北都流火电子竞技俱乐部",
+        "job_title": "赛训经理",
+        "homepage_blurb": "职责：调状态、读版本、背锅，以及在输比赛后假装很冷静。",
+        "month_label": "赛季周",
+        "hero_keys": [
+          "wins",
+          "sponsors",
+          "synergy",
+          "fanbase"
+        ],
+        "featured_keys": [
+          "stamina",
+          "morale",
+          "meta_read",
+          "public_pressure",
+          "injuries",
+          "season_week"
+        ],
+        "focus_labels": {
+          "wins": "胜场",
+          "sponsors": "赞助",
+          "synergy": "磨合",
+          "stamina": "体能",
+          "morale": "士气",
+          "fanbase": "粉丝",
+          "meta_read": "版本理解",
+          "public_pressure": "舆论压力",
+          "injuries": "伤病",
+          "season_week": "赛季周"
+        }
+      }
+    },
+    {
+      "id": "startup_pivot",
+      "title": "创业转型 180 天",
+      "genre": "商业生存",
+      "core_loop": "拉增长-控现金-讲故事-别猝死",
+      "initial_state": {
+        "users": 120,
+        "cash": 80,
+        "runway": 8,
+        "team": 56,
+        "focus": 45,
+        "tech_debt": 24,
+        "health": 60,
+        "investor_heat": 30,
+        "brand": 22,
+        "month": 1,
+        "max_time": 10
+      },
+      "actions": [
+        {
+          "id": "ship_feature",
+          "name": "硬推新功能",
+          "category": "product",
+          "cost": {
+            "focus": 8,
+            "health": 4
+          },
+          "effect": {
+            "users": 35,
+            "tech_debt": 10,
+            "brand": 4
+          },
+          "desc": "用户会涨，但工程师会在群里发省略号。"
+        },
+        {
+          "id": "close_sales",
+          "name": "亲自跑大单",
+          "category": "sales",
+          "cost": {
+            "health": 6,
+            "team": 3
+          },
+          "effect": {
+            "cash": 22,
+            "brand": 6,
+            "investor_heat": 5
+          },
+          "desc": "现金最有效的来源，是你自己出去演。"
+        },
+        {
+          "id": "fundraise",
+          "name": "见投资人",
+          "category": "finance",
+          "cost": {
+            "health": 5,
+            "focus": 4
+          },
+          "effect": {
+            "cash": 30,
+            "investor_heat": 12,
+            "runway": 1
+          },
+          "desc": "说服别人相信故事，比做事还花体力。"
+        },
+        {
+          "id": "pay_tech_debt",
+          "name": "停下来补系统",
+          "category": "engineering",
+          "cost": {
+            "users": 12
+          },
+          "effect": {
+            "tech_debt": -16,
+            "focus": 8,
+            "team": 6
+          },
+          "desc": "短期难看，但至少不会半夜炸库。"
+        },
+        {
+          "id": "team_reset",
+          "name": "全员对齐会",
+          "category": "management",
+          "cost": {
+            "cash": 8
+          },
+          "effect": {
+            "team": 12,
+            "focus": 10,
+            "health": 4
+          },
+          "desc": "你终于把大家的方向从六个变回两个。"
+        },
+        {
+          "id": "sleep",
+          "name": "今晚真睡觉",
+          "category": "recovery",
+          "cost": {
+            "brand": 1
+          },
+          "effect": {
+            "health": 18,
+            "focus": 10,
+            "team": 4
+          },
+          "desc": "CEO 睡够觉是一种稀缺战略资源。"
+        }
+      ],
+      "random_events": [
+        {
+          "id": "server_crash",
+          "probability": 0.18,
+          "message": "线上服务在凌晨崩了，报警像春节放鞭炮。",
+          "effect": {
+            "tech_debt": 14,
+            "health": -6,
+            "brand": -5
+          }
+        },
+        {
+          "id": "viral_growth",
+          "probability": 0.14,
+          "message": "一个短视频把产品带火了，你来不及想为什么。",
+          "effect": {
+            "users": 40,
+            "brand": 10
+          }
+        },
+        {
+          "id": "employee_exit",
+          "probability": 0.16,
+          "message": "核心同事说想休息一下，语气礼貌得让人心凉。",
+          "effect": {
+            "team": -10,
+            "focus": -6
+          }
+        },
+        {
+          "id": "investor_ping",
+          "probability": 0.18,
+          "message": "投资人发来一句“最近数据方便同步下吗”。",
+          "effect": {
+            "investor_heat": 8,
+            "health": -3
+          }
+        }
+      ],
+      "win_conditions": [
+        "users >= 260",
+        "cash >= 120",
+        "tech_debt < 55",
+        "month <= max_time"
+      ],
+      "fail_conditions": [
+        "health <= 0",
+        "cash <= 0",
+        "team <= 0",
+        "runway <= 0",
+        "month > max_time"
+      ],
+      "opening_prompt": "公司已经没有资格再讲“慢慢来”。接下来的 180 天，你要么把故事跑成数据，要么把团队送进回忆录。",
+      "metadata": {
+        "featured": true,
+        "mode": "startup",
+        "institution": "未盈利但很会做增长的创业公司",
+        "job_title": "创始人兼临时客服",
+        "homepage_blurb": "方向：效率工具、AI 应用，以及如何在会议里把焦虑说成愿景。",
+        "month_label": "创业月",
+        "hero_keys": [
+          "users",
+          "cash",
+          "runway",
+          "brand"
+        ],
+        "featured_keys": [
+          "team",
+          "focus",
+          "tech_debt",
+          "health",
+          "investor_heat",
+          "month"
+        ],
+        "focus_labels": {
+          "users": "用户",
+          "cash": "现金",
+          "runway": "跑道",
+          "team": "团队状态",
+          "focus": "战略聚焦",
+          "tech_debt": "技术债",
+          "health": "创始人体力",
+          "investor_heat": "投资人热度",
+          "brand": "品牌热度",
+          "month": "创业月"
+        }
+      }
+    },
+    {
+      "id": "film_production",
+      "title": "独立电影制片战",
+      "genre": "创作工业",
+      "core_loop": "拍够素材-稳住演员-冲进电影节",
+      "initial_state": {
+        "footage": 18,
+        "budget": 68,
+        "cast_mood": 58,
+        "edit_quality": 26,
+        "buzz": 18,
+        "sleep": 54,
+        "festival_deadline": 1,
+        "max_time": 9,
+        "crew_order": 48,
+        "weather_risk": 14
+      },
+      "actions": [
+        {
+          "id": "shoot",
+          "name": "抢天光拍摄",
+          "category": "production",
+          "cost": {
+            "budget": 10,
+            "sleep": 8
+          },
+          "effect": {
+            "footage": 18,
+            "cast_mood": -4,
+            "crew_order": 5
+          },
+          "desc": "素材是上来了，但现场情绪会掉。"
+        },
+        {
+          "id": "rewrite",
+          "name": "连夜改剧本",
+          "category": "writing",
+          "cost": {
+            "sleep": 7
+          },
+          "effect": {
+            "edit_quality": 9,
+            "cast_mood": 4
+          },
+          "desc": "剧本清楚一点，现场就少吵一点。"
+        },
+        {
+          "id": "court_festival",
+          "name": "跑电影节关系",
+          "category": "distribution",
+          "cost": {
+            "budget": 6,
+            "sleep": 3
+          },
+          "effect": {
+            "buzz": 10,
+            "edit_quality": 4
+          },
+          "desc": "先让人知道你，再让人看懂你。"
+        },
+        {
+          "id": "crew_day",
+          "name": "给剧组做人",
+          "category": "recovery",
+          "cost": {
+            "budget": 5
+          },
+          "effect": {
+            "cast_mood": 12,
+            "crew_order": 10,
+            "sleep": 4
+          },
+          "desc": "请大家喝咖啡吃热饭，能解决一半艺术矛盾。"
+        },
+        {
+          "id": "edit_lock",
+          "name": "盯机房粗剪",
+          "category": "post",
+          "cost": {
+            "sleep": 9,
+            "cast_mood": 2
+          },
+          "effect": {
+            "edit_quality": 14,
+            "buzz": 5
+          },
+          "desc": "片子的灵魂开始出现，但人开始发空。"
+        },
+        {
+          "id": "sleep",
+          "name": "回去睡觉",
+          "category": "recovery",
+          "cost": {
+            "buzz": 1
+          },
+          "effect": {
+            "sleep": 16,
+            "cast_mood": 6
+          },
+          "desc": "你不是机器，虽然整个剧组都把你当中控台。"
+        }
+      ],
+      "random_events": [
+        {
+          "id": "rain",
+          "probability": 0.18,
+          "message": "天气预报再次背叛了你，外景计划原地失效。",
+          "effect": {
+            "weather_risk": 14,
+            "budget": -6
+          }
+        },
+        {
+          "id": "magic_take",
+          "probability": 0.14,
+          "message": "演员突然给出一个神来之笔，全组安静了三秒。",
+          "effect": {
+            "edit_quality": 10,
+            "buzz": 6
+          }
+        },
+        {
+          "id": "equipment_fail",
+          "probability": 0.16,
+          "message": "设备出故障，所有人一起望向制片。",
+          "effect": {
+            "budget": -10,
+            "crew_order": -6
+          }
+        },
+        {
+          "id": "festival_programmer",
+          "probability": 0.12,
+          "message": "一个选片人说他对你们的粗剪有兴趣。",
+          "effect": {
+            "buzz": 12,
+            "cast_mood": 5
+          }
+        }
+      ],
+      "win_conditions": [
+        "footage >= 90",
+        "edit_quality >= 65",
+        "buzz >= 45",
+        "festival_deadline <= max_time"
+      ],
+      "fail_conditions": [
+        "budget <= 0",
+        "sleep <= 0",
+        "cast_mood <= 0",
+        "crew_order <= 0",
+        "festival_deadline > max_time"
+      ],
+      "opening_prompt": "拍独立电影最难的不是没钱，而是每一个没钱的决定都必须看起来像艺术选择。",
+      "metadata": {
+        "featured": true,
+        "mode": "film",
+        "institution": "手停口停影业工作室",
+        "job_title": "导演 / 制片 / 情绪缓冲器",
+        "homepage_blurb": "项目简介：低预算现实主义长片，题材克制，拍摄现场一点都不克制。",
+        "month_label": "制片周",
+        "hero_keys": [
+          "footage",
+          "budget",
+          "edit_quality",
+          "buzz"
+        ],
+        "featured_keys": [
+          "cast_mood",
+          "sleep",
+          "crew_order",
+          "weather_risk",
+          "festival_deadline"
+        ],
+        "focus_labels": {
+          "footage": "素材量",
+          "budget": "预算",
+          "cast_mood": "演员状态",
+          "edit_quality": "剪辑成熟度",
+          "buzz": "关注度",
+          "sleep": "睡眠",
+          "festival_deadline": "制片周",
+          "crew_order": "剧组秩序",
+          "weather_risk": "天气风险"
+        }
+      }
+    },
+    {
+      "id": "disaster_rebuild",
+      "title": "灾后重建计划",
+      "genre": "公共治理",
+      "core_loop": "救援-调度-重建-稳住信任",
+      "initial_state": {
+        "shelter": 42,
+        "trust": 45,
+        "supplies": 70,
+        "volunteers": 34,
+        "fatigue": 22,
+        "risk": 26,
+        "infrastructure": 18,
+        "media": 20,
+        "week": 1,
+        "max_time": 10
+      },
+      "actions": [
+        {
+          "id": "dispatch",
+          "name": "加密物资调度",
+          "category": "logistics",
+          "cost": {
+            "supplies": 12,
+            "fatigue": 3
+          },
+          "effect": {
+            "shelter": 12,
+            "trust": 6,
+            "risk": -4
+          },
+          "desc": "短期稳定民生，但库存会见底。"
+        },
+        {
+          "id": "repair",
+          "name": "抢修基础设施",
+          "category": "rebuild",
+          "cost": {
+            "volunteers": 4,
+            "fatigue": 6
+          },
+          "effect": {
+            "infrastructure": 14,
+            "risk": -8
+          },
+          "desc": "见效慢，但决定你是不是一直救火。"
+        },
+        {
+          "id": "briefing",
+          "name": "公开通报进度",
+          "category": "governance",
+          "cost": {
+            "fatigue": 2
+          },
+          "effect": {
+            "trust": 8,
+            "media": 6
+          },
+          "desc": "说真话会很累，但不说真话会更贵。"
+        },
+        {
+          "id": "recruit",
+          "name": "发动志愿网络",
+          "category": "coordination",
+          "cost": {
+            "trust": 3
+          },
+          "effect": {
+            "volunteers": 10,
+            "supplies": 6
+          },
+          "desc": "把分散的好意变成可执行的队列。"
+        },
+        {
+          "id": "rest",
+          "name": "轮班止损",
+          "category": "recovery",
+          "cost": {
+            "media": 1
+          },
+          "effect": {
+            "fatigue": -14,
+            "trust": 4
+          },
+          "desc": "让队伍停一下，不然系统先倒。"
+        },
+        {
+          "id": "field_visit",
+          "name": "下沉走访",
+          "category": "governance",
+          "cost": {
+            "fatigue": 5,
+            "supplies": 4
+          },
+          "effect": {
+            "trust": 12,
+            "risk": -3,
+            "media": 4
+          },
+          "desc": "出现在现场，比出现在报告里更有用。"
+        }
+      ],
+      "random_events": [
+        {
+          "id": "aftershock",
+          "probability": 0.16,
+          "message": "余震再次打乱节奏，刚搭好的帐篷区又要重排。",
+          "effect": {
+            "risk": 12,
+            "shelter": -8
+          }
+        },
+        {
+          "id": "donation",
+          "probability": 0.18,
+          "message": "一批紧急捐赠物资到达，仓库和心情都松了一口气。",
+          "effect": {
+            "supplies": 18,
+            "trust": 5
+          }
+        },
+        {
+          "id": "rumor",
+          "probability": 0.16,
+          "message": "谣言开始扩散，大家比物资更缺确定性。",
+          "effect": {
+            "trust": -8,
+            "media": 8
+          }
+        },
+        {
+          "id": "local_hero",
+          "probability": 0.12,
+          "message": "社区里冒出一位组织能力惊人的大姐，调度 suddenly 顺了。",
+          "effect": {
+            "volunteers": 8,
+            "risk": -6
+          }
+        }
+      ],
+      "win_conditions": [
+        "shelter >= 78",
+        "trust >= 72",
+        "infrastructure >= 60",
+        "week <= max_time"
+      ],
+      "fail_conditions": [
+        "supplies <= 0",
+        "trust <= 0",
+        "fatigue >= 100",
+        "risk >= 100",
+        "week > max_time"
+      ],
+      "opening_prompt": "灾后真正难的是第二阶段：当镜头撤走，系统还得继续运转。你要重建的不只是路和电，还有人对秩序的信任。",
+      "metadata": {
+        "featured": true,
+        "mode": "rebuild",
+        "institution": "联合灾后重建临时指挥部",
+        "job_title": "现场总协调员",
+        "homepage_blurb": "职责：让资源流动，让信息可信，让疲惫的人还能继续相信明天会更好。",
+        "month_label": "重建周",
+        "hero_keys": [
+          "shelter",
+          "trust",
+          "supplies",
+          "infrastructure"
+        ],
+        "featured_keys": [
+          "volunteers",
+          "fatigue",
+          "risk",
+          "media",
+          "week"
+        ],
+        "focus_labels": {
+          "shelter": "安置率",
+          "trust": "民众信任",
+          "supplies": "物资储备",
+          "volunteers": "志愿力量",
+          "fatigue": "队伍疲劳",
+          "risk": "系统风险",
+          "infrastructure": "基础设施",
+          "media": "舆情热度",
+          "week": "重建周"
+        }
+      }
+    },
+    {
+      "id": "campus_governance",
+      "title": "校园改革实验",
+      "genre": "教育治理",
+      "core_loop": "调研-博弈-试点-扩大共识",
+      "initial_state": {
+        "policy_progress": 12,
+        "support": 38,
+        "resistance": 34,
+        "legitimacy": 46,
+        "stamina": 62,
+        "controversy": 18,
+        "faculty_buyin": 28,
+        "student_feedback": 36,
+        "semester": 1,
+        "max_time": 8
+      },
+      "actions": [
+        {
+          "id": "townhall",
+          "name": "开听证会",
+          "category": "consensus",
+          "cost": {
+            "stamina": 7
+          },
+          "effect": {
+            "support": 8,
+            "legitimacy": 8,
+            "controversy": 3
+          },
+          "desc": "共识会增加，但争议也会被公开。"
+        },
+        {
+          "id": "pilot",
+          "name": "推进试点班级",
+          "category": "execution",
+          "cost": {
+            "stamina": 9,
+            "faculty_buyin": 3
+          },
+          "effect": {
+            "policy_progress": 16,
+            "student_feedback": 8,
+            "resistance": 4
+          },
+          "desc": "真正往前走一步，反对声音也会更具体。"
+        },
+        {
+          "id": "negotiate",
+          "name": "逐个谈关键教师",
+          "category": "politics",
+          "cost": {
+            "stamina": 8
+          },
+          "effect": {
+            "faculty_buyin": 10,
+            "resistance": -8,
+            "support": 4
+          },
+          "desc": "改革从来不是文本工作，而是人际工作。"
+        },
+        {
+          "id": "publish_data",
+          "name": "公开效果数据",
+          "category": "governance",
+          "cost": {
+            "student_feedback": 2
+          },
+          "effect": {
+            "legitimacy": 10,
+            "support": 6,
+            "controversy": -4
+          },
+          "desc": "数据不一定解决争议，但会逼大家争得更专业。"
+        },
+        {
+          "id": "pause",
+          "name": "缓一缓节奏",
+          "category": "recovery",
+          "cost": {
+            "policy_progress": 2
+          },
+          "effect": {
+            "stamina": 14,
+            "controversy": -8,
+            "support": 3
+          },
+          "desc": "先把刀从喉咙上拿开，改革反而能多活几步。"
+        },
+        {
+          "id": "student_roundtable",
+          "name": "学生圆桌",
+          "category": "feedback",
+          "cost": {
+            "stamina": 5
+          },
+          "effect": {
+            "student_feedback": 10,
+            "support": 5,
+            "legitimacy": 4
+          },
+          "desc": "把学生从被改革对象，变成改革参与者。"
+        }
+      ],
+      "random_events": [
+        {
+          "id": "forum_post",
+          "probability": 0.18,
+          "message": "校内论坛出现爆帖，标题里已经开始出现感叹号。",
+          "effect": {
+            "controversy": 12,
+            "support": -5
+          }
+        },
+        {
+          "id": "teacher_backing",
+          "probability": 0.14,
+          "message": "一位德高望重的老师公开支持你，会议室气氛瞬间不同。",
+          "effect": {
+            "faculty_buyin": 10,
+            "legitimacy": 8
+          }
+        },
+        {
+          "id": "student_praise",
+          "probability": 0.15,
+          "message": "学生调研里第一次出现“这个改革其实有帮助”。",
+          "effect": {
+            "student_feedback": 8,
+            "support": 6
+          }
+        },
+        {
+          "id": "procedural_delay",
+          "probability": 0.18,
+          "message": "流程卡住了，文件在三个部门之间旅行。",
+          "effect": {
+            "policy_progress": -6,
+            "stamina": -4
+          }
+        }
+      ],
+      "win_conditions": [
+        "policy_progress >= 70",
+        "support >= 68",
+        "legitimacy >= 70",
+        "semester <= max_time"
+      ],
+      "fail_conditions": [
+        "stamina <= 0",
+        "controversy >= 100",
+        "resistance >= 100",
+        "support <= 0",
+        "semester > max_time"
+      ],
+      "opening_prompt": "每个人都说校园需要改革，但一旦动到自己的课表、考核和舒适区，共识就会立刻蒸发。你得把改革做成一件能被接受的事。",
+      "metadata": {
+        "featured": true,
+        "mode": "campus",
+        "institution": "同光大学改革办公室",
+        "job_title": "教改项目负责人",
+        "homepage_blurb": "项目：课程体系重构与协同治理试点。现实：每天都在做会议设计和心理建设。",
+        "month_label": "学期周",
+        "hero_keys": [
+          "policy_progress",
+          "support",
+          "legitimacy",
+          "faculty_buyin"
+        ],
+        "featured_keys": [
+          "resistance",
+          "stamina",
+          "controversy",
+          "student_feedback",
+          "semester"
+        ],
+        "focus_labels": {
+          "policy_progress": "改革进度",
+          "support": "支持度",
+          "resistance": "阻力",
+          "legitimacy": "正当性",
+          "stamina": "体力",
+          "controversy": "争议值",
+          "faculty_buyin": "教师买账度",
+          "student_feedback": "学生反馈",
+          "semester": "学期周"
+        }
+      }
+    },
+    {
+      "id": "hospital_night_shift",
+      "title": "急诊夜班总控",
+      "genre": "医疗",
+      "core_loop": "分诊-救治-交接",
+      "initial_state": {
+        "progress": 0,
+        "morale": 60,
+        "energy": 65,
+        "risk": 20,
+        "budget": 50,
+        "network": 30,
+        "time": 1,
+        "max_time": 24
+      },
+      "actions": [
+        {
+          "id": "progress",
+          "name": "推进主线",
+          "category": "progress",
+          "cost": {
+            "energy": 12,
+            "morale": 4
+          },
+          "effect": {
+            "progress": 16,
+            "risk": 6
+          },
+          "desc": "高收益推进，但会累积额外风险。"
+        },
+        {
+          "id": "stabilize",
+          "name": "系统稳态",
+          "category": "recovery",
+          "cost": {
+            "energy": 8
+          },
+          "effect": {
+            "risk": -12,
+            "morale": 6
+          },
+          "desc": "降低事故概率，并恢复团队信心。"
+        },
+        {
+          "id": "resource",
+          "name": "争取资源",
+          "category": "economy",
+          "cost": {
+            "morale": 5
+          },
+          "effect": {
+            "budget": 18,
+            "network": 8
+          },
+          "desc": "获取预算并扩展外部协作关系。"
+        },
+        {
+          "id": "rest",
+          "name": "休整恢复",
+          "category": "recovery",
+          "cost": {
+            "budget": 4
+          },
+          "effect": {
+            "energy": 20,
+            "morale": 12
+          },
+          "desc": "回补体力与士气，避免系统崩盘。"
+        }
+      ],
+      "random_events": [
+        {
+          "id": "lucky_break",
+          "probability": 0.18,
+          "message": "急诊夜班总控出现意外突破，执行效率显著提升。",
+          "effect": {
+            "progress": 10,
+            "morale": 8
+          }
+        },
+        {
+          "id": "minor_crisis",
+          "probability": 0.22,
+          "message": "急诊夜班总控遭遇局部危机，需要立即处置。",
+          "effect": {
+            "risk": 14,
+            "energy": -8
+          }
+        },
+        {
+          "id": "stakeholder_pressure",
+          "probability": 0.16,
+          "message": "外部利益相关方要求急诊夜班总控尽快交付阶段成果。",
+          "effect": {
+            "morale": -10,
+            "network": 6
+          }
+        }
+      ],
+      "win_conditions": [
+        "progress >= 100",
+        "time <= max_time",
+        "morale > 0"
+      ],
+      "fail_conditions": [
+        "morale <= 0",
+        "energy <= 0",
+        "risk >= 100",
+        "budget <= -20",
+        "time > max_time"
+      ],
+      "opening_prompt": "你负责夜班急诊总控，目标是在持续高压下守住效率与安全。",
+      "metadata": {
+        "featured": false,
+        "mode": "generic",
+        "institution": "通用模拟实验室",
+        "job_title": "场景执行者",
+        "homepage_blurb": "这是一个可执行的外层 Prompt 场景。",
+        "month_label": "时间",
+        "hero_keys": [
+          "progress",
+          "budget",
+          "network",
+          "morale"
+        ],
+        "featured_keys": [
+          "energy",
+          "risk",
+          "time"
+        ],
+        "focus_labels": {
+          "progress": "进度",
+          "budget": "预算",
+          "network": "网络",
+          "morale": "士气",
+          "energy": "精力",
+          "risk": "风险",
+          "time": "时间"
+        }
+      }
+    },
+    {
+      "id": "space_colony",
+      "title": "火星前哨基地",
+      "genre": "科幻",
+      "core_loop": "建设-科研-防灾",
+      "initial_state": {
+        "progress": 0,
+        "morale": 60,
+        "energy": 65,
+        "risk": 20,
+        "budget": 50,
+        "network": 30,
+        "time": 1,
+        "max_time": 24
+      },
+      "actions": [
+        {
+          "id": "progress",
+          "name": "推进主线",
+          "category": "progress",
+          "cost": {
+            "energy": 12,
+            "morale": 4
+          },
+          "effect": {
+            "progress": 16,
+            "risk": 6
+          },
+          "desc": "高收益推进，但会累积额外风险。"
+        },
+        {
+          "id": "stabilize",
+          "name": "系统稳态",
+          "category": "recovery",
+          "cost": {
+            "energy": 8
+          },
+          "effect": {
+            "risk": -12,
+            "morale": 6
+          },
+          "desc": "降低事故概率，并恢复团队信心。"
+        },
+        {
+          "id": "resource",
+          "name": "争取资源",
+          "category": "economy",
+          "cost": {
+            "morale": 5
+          },
+          "effect": {
+            "budget": 18,
+            "network": 8
+          },
+          "desc": "获取预算并扩展外部协作关系。"
+        },
+        {
+          "id": "rest",
+          "name": "休整恢复",
+          "category": "recovery",
+          "cost": {
+            "budget": 4
+          },
+          "effect": {
+            "energy": 20,
+            "morale": 12
+          },
+          "desc": "回补体力与士气，避免系统崩盘。"
+        }
+      ],
+      "random_events": [
+        {
+          "id": "lucky_break",
+          "probability": 0.18,
+          "message": "火星前哨基地出现意外突破，执行效率显著提升。",
+          "effect": {
+            "progress": 10,
+            "morale": 8
+          }
+        },
+        {
+          "id": "minor_crisis",
+          "probability": 0.22,
+          "message": "火星前哨基地遭遇局部危机，需要立即处置。",
+          "effect": {
+            "risk": 14,
+            "energy": -8
+          }
+        },
+        {
+          "id": "stakeholder_pressure",
+          "probability": 0.16,
+          "message": "外部利益相关方要求火星前哨基地尽快交付阶段成果。",
+          "effect": {
+            "morale": -10,
+            "network": 6
+          }
+        }
+      ],
+      "win_conditions": [
+        "progress >= 100",
+        "time <= max_time",
+        "morale > 0"
+      ],
+      "fail_conditions": [
+        "morale <= 0",
+        "energy <= 0",
+        "risk >= 100",
+        "budget <= -20",
+        "time > max_time"
+      ],
+      "opening_prompt": "你管理火星前哨，需在资源受限中兼顾生存、扩建与科研进度。",
+      "metadata": {
+        "featured": false,
+        "mode": "generic",
+        "institution": "通用模拟实验室",
+        "job_title": "场景执行者",
+        "homepage_blurb": "这是一个可执行的外层 Prompt 场景。",
+        "month_label": "时间",
+        "hero_keys": [
+          "progress",
+          "budget",
+          "network",
+          "morale"
+        ],
+        "featured_keys": [
+          "energy",
+          "risk",
+          "time"
+        ],
+        "focus_labels": {
+          "progress": "进度",
+          "budget": "预算",
+          "network": "网络",
+          "morale": "士气",
+          "energy": "精力",
+          "risk": "风险",
+          "time": "时间"
+        }
+      }
+    },
+    {
+      "id": "cyber_incident",
+      "title": "企业攻防 72 小时",
+      "genre": "安全",
+      "core_loop": "检测-遏制-恢复",
+      "initial_state": {
+        "progress": 0,
+        "morale": 60,
+        "energy": 65,
+        "risk": 20,
+        "budget": 50,
+        "network": 30,
+        "time": 1,
+        "max_time": 24
+      },
+      "actions": [
+        {
+          "id": "progress",
+          "name": "推进主线",
+          "category": "progress",
+          "cost": {
+            "energy": 12,
+            "morale": 4
+          },
+          "effect": {
+            "progress": 16,
+            "risk": 6
+          },
+          "desc": "高收益推进，但会累积额外风险。"
+        },
+        {
+          "id": "stabilize",
+          "name": "系统稳态",
+          "category": "recovery",
+          "cost": {
+            "energy": 8
+          },
+          "effect": {
+            "risk": -12,
+            "morale": 6
+          },
+          "desc": "降低事故概率，并恢复团队信心。"
+        },
+        {
+          "id": "resource",
+          "name": "争取资源",
+          "category": "economy",
+          "cost": {
+            "morale": 5
+          },
+          "effect": {
+            "budget": 18,
+            "network": 8
+          },
+          "desc": "获取预算并扩展外部协作关系。"
+        },
+        {
+          "id": "rest",
+          "name": "休整恢复",
+          "category": "recovery",
+          "cost": {
+            "budget": 4
+          },
+          "effect": {
+            "energy": 20,
+            "morale": 12
+          },
+          "desc": "回补体力与士气，避免系统崩盘。"
+        }
+      ],
+      "random_events": [
+        {
+          "id": "lucky_break",
+          "probability": 0.18,
+          "message": "企业攻防 72 小时出现意外突破，执行效率显著提升。",
+          "effect": {
+            "progress": 10,
+            "morale": 8
+          }
+        },
+        {
+          "id": "minor_crisis",
+          "probability": 0.22,
+          "message": "企业攻防 72 小时遭遇局部危机，需要立即处置。",
+          "effect": {
+            "risk": 14,
+            "energy": -8
+          }
+        },
+        {
+          "id": "stakeholder_pressure",
+          "probability": 0.16,
+          "message": "外部利益相关方要求企业攻防 72 小时尽快交付阶段成果。",
+          "effect": {
+            "morale": -10,
+            "network": 6
+          }
+        }
+      ],
+      "win_conditions": [
+        "progress >= 100",
+        "time <= max_time",
+        "morale > 0"
+      ],
+      "fail_conditions": [
+        "morale <= 0",
+        "energy <= 0",
+        "risk >= 100",
+        "budget <= -20",
+        "time > max_time"
+      ],
+      "opening_prompt": "你带队应对持续网络攻击，核心目标是守住业务连续性。",
+      "metadata": {
+        "featured": false,
+        "mode": "generic",
+        "institution": "通用模拟实验室",
+        "job_title": "场景执行者",
+        "homepage_blurb": "这是一个可执行的外层 Prompt 场景。",
+        "month_label": "时间",
+        "hero_keys": [
+          "progress",
+          "budget",
+          "network",
+          "morale"
+        ],
+        "featured_keys": [
+          "energy",
+          "risk",
+          "time"
+        ],
+        "focus_labels": {
+          "progress": "进度",
+          "budget": "预算",
+          "network": "网络",
+          "morale": "士气",
+          "energy": "精力",
+          "risk": "风险",
+          "time": "时间"
+        }
+      }
+    },
+    {
+      "id": "supply_chain",
+      "title": "跨境供应链保卫战",
+      "genre": "运营",
+      "core_loop": "采购-履约-优化",
+      "initial_state": {
+        "progress": 0,
+        "morale": 60,
+        "energy": 65,
+        "risk": 20,
+        "budget": 50,
+        "network": 30,
+        "time": 1,
+        "max_time": 24
+      },
+      "actions": [
+        {
+          "id": "progress",
+          "name": "推进主线",
+          "category": "progress",
+          "cost": {
+            "energy": 12,
+            "morale": 4
+          },
+          "effect": {
+            "progress": 16,
+            "risk": 6
+          },
+          "desc": "高收益推进，但会累积额外风险。"
+        },
+        {
+          "id": "stabilize",
+          "name": "系统稳态",
+          "category": "recovery",
+          "cost": {
+            "energy": 8
+          },
+          "effect": {
+            "risk": -12,
+            "morale": 6
+          },
+          "desc": "降低事故概率，并恢复团队信心。"
+        },
+        {
+          "id": "resource",
+          "name": "争取资源",
+          "category": "economy",
+          "cost": {
+            "morale": 5
+          },
+          "effect": {
+            "budget": 18,
+            "network": 8
+          },
+          "desc": "获取预算并扩展外部协作关系。"
+        },
+        {
+          "id": "rest",
+          "name": "休整恢复",
+          "category": "recovery",
+          "cost": {
+            "budget": 4
+          },
+          "effect": {
+            "energy": 20,
+            "morale": 12
+          },
+          "desc": "回补体力与士气，避免系统崩盘。"
+        }
+      ],
+      "random_events": [
+        {
+          "id": "lucky_break",
+          "probability": 0.18,
+          "message": "跨境供应链保卫战出现意外突破，执行效率显著提升。",
+          "effect": {
+            "progress": 10,
+            "morale": 8
+          }
+        },
+        {
+          "id": "minor_crisis",
+          "probability": 0.22,
+          "message": "跨境供应链保卫战遭遇局部危机，需要立即处置。",
+          "effect": {
+            "risk": 14,
+            "energy": -8
+          }
+        },
+        {
+          "id": "stakeholder_pressure",
+          "probability": 0.16,
+          "message": "外部利益相关方要求跨境供应链保卫战尽快交付阶段成果。",
+          "effect": {
+            "morale": -10,
+            "network": 6
+          }
+        }
+      ],
+      "win_conditions": [
+        "progress >= 100",
+        "time <= max_time",
+        "morale > 0"
+      ],
+      "fail_conditions": [
+        "morale <= 0",
+        "energy <= 0",
+        "risk >= 100",
+        "budget <= -20",
+        "time > max_time"
+      ],
+      "opening_prompt": "你在全球波动中守住交付率与利润率。",
+      "metadata": {
+        "featured": false,
+        "mode": "generic",
+        "institution": "通用模拟实验室",
+        "job_title": "场景执行者",
+        "homepage_blurb": "这是一个可执行的外层 Prompt 场景。",
+        "month_label": "时间",
+        "hero_keys": [
+          "progress",
+          "budget",
+          "network",
+          "morale"
+        ],
+        "featured_keys": [
+          "energy",
+          "risk",
+          "time"
+        ],
+        "focus_labels": {
+          "progress": "进度",
+          "budget": "预算",
+          "network": "网络",
+          "morale": "士气",
+          "energy": "精力",
+          "risk": "风险",
+          "time": "时间"
+        }
+      }
+    }
+  ]
+};
