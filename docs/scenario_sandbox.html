@@ -75,6 +75,12 @@
     }
     select { min-width: 300px; }
     button:hover, select:hover { background: rgba(255,255,255,0.14); }
+    .mobile-strip {
+      display: none;
+      margin-top: 14px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
     .content {
       margin-top: 18px;
       display: grid;
@@ -89,6 +95,11 @@
       box-shadow: var(--shadow);
       padding: 18px;
     }
+    .faculty-card { order: 1; }
+    .actions-card { order: 2; }
+    .log-card { order: 3; }
+    .metrics-card { order: 1; }
+    .ending-card { order: 2; }
     .faculty {
       position: relative;
       overflow: hidden;
@@ -227,6 +238,12 @@
       white-space: pre-wrap;
       font-size: 0.92rem;
     }
+    .subtle {
+      display: inline-block;
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
     .outcome {
       margin-top: 10px;
       border-radius: 16px;
@@ -242,10 +259,99 @@
       .hero-stats, .metrics, .actions { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 700px) {
+      .shell { padding: 14px 12px 28px; }
+      .hero { padding: 18px 16px; border-radius: 20px; }
       .hero-top { flex-direction: column; }
-      .hero-meta { text-align: left; }
+      .hero-meta { display: none; }
+      .hero h1 { font-size: 2rem; }
+      .hero p {
+        font-size: 0.94rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+      .controls select {
+        grid-column: 1 / -1;
+        min-width: 0;
+        width: 100%;
+      }
+      .controls button {
+        width: 100%;
+        min-height: 48px;
+      }
+      .mobile-strip { display: flex; }
+      .content { margin-top: 14px; gap: 14px; }
+      .col { gap: 14px; }
+      .card { padding: 14px; border-radius: 18px; }
       .faculty-grid { grid-template-columns: 1fr; }
-      .hero-stats, .metrics, .actions { grid-template-columns: 1fr; }
+      .faculty-card { order: 2; }
+      .actions-card { order: 1; }
+      .metrics-card { order: 3; }
+      .ending-card { order: 4; }
+      .log-card { order: 5; }
+      .avatar {
+        width: 76px;
+        height: 76px;
+        border-radius: 18px;
+        font-size: 1.5rem;
+      }
+      .pill-row { gap: 6px; }
+      .pill { font-size: 0.8rem; padding: 4px 8px; }
+      .hero-stats {
+        display: flex;
+        overflow-x: auto;
+        gap: 10px;
+        padding-bottom: 4px;
+        scroll-snap-type: x proximity;
+      }
+      .stat {
+        min-width: 132px;
+        scroll-snap-align: start;
+      }
+      .note {
+        font-size: 0.9rem;
+        line-height: 1.55;
+      }
+      .section-head {
+        flex-direction: column;
+        align-items: start;
+        margin-bottom: 10px;
+      }
+      .section-head p { margin-top: 2px; }
+      .actions {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      .action {
+        min-height: 0;
+        padding: 14px 12px;
+      }
+      .action-name { font-size: 1rem; }
+      .action-desc {
+        min-height: 0;
+        font-size: 0.88rem;
+      }
+      .action-meta { margin-top: 8px; }
+      .metrics {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .metric {
+        padding: 12px;
+        border-radius: 16px;
+      }
+      .metric .value { font-size: 1.35rem; }
+      .log {
+        min-height: 0;
+        max-height: 180px;
+        font-size: 0.86rem;
+        line-height: 1.55;
+      }
     }
   </style>
 </head>
@@ -269,11 +375,16 @@
         <button id="start-btn">进入玩法</button>
         <button id="reset-btn">重置本轮</button>
       </div>
+      <div class="mobile-strip">
+        <span class="pill" id="mobile-genre">玩法：未启动</span>
+        <span class="pill warn" id="mobile-status">空闲</span>
+        <span class="pill" id="mobile-turn">未开始</span>
+      </div>
     </section>
 
     <section class="content">
       <div class="col">
-        <article class="card faculty">
+        <article class="card faculty faculty-card">
           <div class="faculty-grid">
             <div class="avatar" id="avatar">剧</div>
             <div>
@@ -291,7 +402,7 @@
           <div class="note" id="homepage-blurb">未加载场景说明。</div>
         </article>
 
-        <article class="card">
+        <article class="card actions-card">
           <div class="section-head">
             <div>
               <h3 class="panel-title">当前动作</h3>
@@ -302,12 +413,13 @@
           <div class="actions" id="actions"></div>
         </article>
 
-        <article class="card">
+        <article class="card log-card">
           <div class="section-head">
             <div>
               <h3 class="panel-title">过程记录</h3>
-              <p>同样是事件，不同玩法的语言、风险和荒诞感都应该不同。</p>
+              <p>手机端先看当前剧情，历史记录放到后面慢慢翻。</p>
             </div>
+            <div class="subtle">向下滚动可查看完整记录</div>
           </div>
           <div class="log" id="log">等待进入玩法。</div>
           <div class="outcome" id="outcome"></div>
@@ -315,7 +427,7 @@
       </div>
 
       <div class="col">
-        <article class="card">
+        <article class="card metrics-card">
           <div class="section-head">
             <div>
               <h3 class="panel-title">状态面板</h3>
@@ -325,7 +437,7 @@
           <div class="metrics" id="metrics"></div>
         </article>
 
-        <article class="card">
+        <article class="card ending-card">
           <div class="section-head">
             <div>
               <h3 class="panel-title">结局预告</h3>
@@ -684,7 +796,10 @@
         log: document.getElementById("log"),
         outcome: document.getElementById("outcome"),
         endingHint: document.getElementById("ending-hint"),
-        avatar: document.getElementById("avatar")
+        avatar: document.getElementById("avatar"),
+        mobileGenre: document.getElementById("mobile-genre"),
+        mobileStatus: document.getElementById("mobile-status"),
+        mobileTurn: document.getElementById("mobile-turn")
       },
 
       async init() {
@@ -748,6 +863,10 @@
         this.ui.outcome.textContent = "";
         this.ui.endingHint.textContent = "进入玩法后会根据当前状态提示你正在靠近哪种结局。";
         this.ui.avatar.textContent = "剧";
+        this.ui.mobileGenre.textContent = "玩法：未启动";
+        this.ui.mobileStatus.textContent = "空闲";
+        this.ui.mobileStatus.className = "pill warn";
+        this.ui.mobileTurn.textContent = "未开始";
       },
 
       start() {
@@ -764,6 +883,7 @@
 
         const metadata = this.meta();
         this.ui.genreTag.textContent = selected.genre;
+        this.ui.mobileGenre.textContent = `玩法：${selected.title}`;
         this.ui.title.textContent = selected.title;
         this.ui.desc.textContent = selected.opening_prompt;
         this.ui.jobTitle.textContent = `身份：${metadata.job_title || "场景执行者"}`;
@@ -803,6 +923,8 @@
       setStatus(text, tone) {
         this.ui.runStatus.className = `pill ${tone}`;
         this.ui.runStatus.textContent = `状态：${text}`;
+        this.ui.mobileStatus.className = `pill ${tone}`;
+        this.ui.mobileStatus.textContent = text;
       },
 
       canAfford(action) {
@@ -957,6 +1079,7 @@
         const progressKey = ["tenure_clock", "season_week", "month", "festival_deadline", "week", "semester", "time"].find((key) => key in this.state);
         const progressText = progressKey ? `${this.labelFor(progressKey)} ${this.state[progressKey]}/${this.state.max_time}` : `回合 ${this.turn}`;
         this.ui.turnMeta.textContent = `第 ${this.turn} 步 | ${progressText}`;
+        this.ui.mobileTurn.textContent = progressText;
         this.renderHeroStats();
         this.renderActions();
         this.renderMetrics();
