@@ -96,8 +96,8 @@
       padding: 18px;
     }
     .faculty-card { order: 1; }
-    .actions-card { order: 2; }
-    .log-card { order: 3; }
+    .log-card { order: 2; }
+    .actions-card { order: 3; }
     .metrics-card { order: 1; }
     .ending-card { order: 2; }
     .faculty {
@@ -227,16 +227,91 @@
     .bar { margin-top: 8px; height: 8px; background: #e6d9c0; border-radius: 999px; overflow: hidden; }
     .bar > span { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
     .log {
-      min-height: 250px;
-      max-height: 430px;
-      overflow-y: auto;
+      display: grid;
+      gap: 14px;
+    }
+    .story-stage {
+      border-radius: 20px;
+      border: 1px solid #d8c3a3;
+      background: linear-gradient(180deg, #fffdf7, #f8efe0);
+      padding: 16px;
+    }
+    .story-kicker {
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .story-current {
+      margin-top: 10px;
+      display: grid;
+      gap: 10px;
+    }
+    .story-bubble {
+      border-radius: 16px 16px 16px 6px;
+      border: 1px solid #dec7a2;
+      background: rgba(255, 250, 241, 0.98);
+      padding: 12px 14px;
+      line-height: 1.7;
+      font-size: 0.96rem;
+      box-shadow: 0 8px 20px rgba(51, 74, 103, 0.06);
+    }
+    .story-bubble.latest {
+      border-color: rgba(143, 49, 38, 0.3);
+      background: linear-gradient(180deg, rgba(255,249,239,0.98), rgba(250,238,219,0.98));
+    }
+    .story-caption {
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.6;
+    }
+    .history-wrap {
       border-radius: 18px;
       border: 1px dashed var(--line);
       background: #fffefb;
+      overflow: hidden;
+    }
+    .history-wrap summary {
+      list-style: none;
+      cursor: pointer;
       padding: 12px 14px;
-      line-height: 1.65;
-      white-space: pre-wrap;
-      font-size: 0.92rem;
+      color: var(--deep);
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+    }
+    .history-wrap summary::-webkit-details-marker { display: none; }
+    .history-wrap[open] summary {
+      border-bottom: 1px solid #eadcc5;
+      background: #faf3e7;
+    }
+    .history-label {
+      font-size: 0.84rem;
+      font-weight: 400;
+      color: var(--muted);
+    }
+    .history-log {
+      max-height: 320px;
+      overflow-y: auto;
+      padding: 12px 14px 14px;
+      display: grid;
+      gap: 10px;
+    }
+    .log-entry {
+      border-left: 3px solid rgba(143, 49, 38, 0.28);
+      padding-left: 10px;
+    }
+    .log-time {
+      font-size: 0.76rem;
+      color: var(--muted);
+      margin-bottom: 3px;
+    }
+    .log-text {
+      line-height: 1.62;
+      font-size: 0.9rem;
+      color: var(--ink);
     }
     .subtle {
       display: inline-block;
@@ -289,11 +364,11 @@
       .col { gap: 14px; }
       .card { padding: 14px; border-radius: 18px; }
       .faculty-grid { grid-template-columns: 1fr; }
+      .log-card { order: 1; }
       .faculty-card { order: 2; }
-      .actions-card { order: 1; }
+      .actions-card { order: 3; }
       .metrics-card { order: 3; }
       .ending-card { order: 4; }
-      .log-card { order: 5; }
       .avatar {
         width: 76px;
         height: 76px;
@@ -346,12 +421,20 @@
         border-radius: 16px;
       }
       .metric .value { font-size: 1.35rem; }
-      .log {
-        min-height: 0;
-        max-height: 180px;
-        font-size: 0.86rem;
-        line-height: 1.55;
+      .story-stage { padding: 14px; }
+      .story-bubble {
+        font-size: 0.92rem;
+        padding: 12px;
       }
+      .history-wrap summary {
+        padding: 11px 12px;
+        font-size: 0.92rem;
+      }
+      .history-log {
+        max-height: 220px;
+        padding: 10px 12px 12px;
+      }
+      .log-text { font-size: 0.86rem; line-height: 1.55; }
     }
   </style>
 </head>
@@ -361,8 +444,8 @@
       <div class="hero-top">
         <div>
           <div class="eyebrow">Anthology Mode / 多主玩法合集</div>
-          <h1>剧情模拟器工作台</h1>
-          <p>每个玩法都用自己的资源、动作、事件和结局说话。这里不是“同一套数值换标题”，而是一组彼此并存、各有脾气的职业与处境模拟。</p>
+          <h1>剧情模拟器剧场</h1>
+          <p>每个玩法都用自己的资源、动作、事件和结局说话。这里不是“同一套数值换标题”，而是一组彼此并存、各有脾气、适合手机连续游玩的互动故事。</p>
         </div>
         <div class="hero-meta">
           多玩法并存
@@ -402,27 +485,42 @@
           <div class="note" id="homepage-blurb">未加载场景说明。</div>
         </article>
 
+        <article class="card log-card">
+          <div class="section-head">
+            <div>
+              <h3 class="panel-title">当前剧情</h3>
+              <p>先读到眼前这一步，再决定下一次动作。</p>
+            </div>
+            <div class="subtle" id="story-progress">剧情待开始</div>
+          </div>
+          <div class="log">
+            <div class="story-stage">
+              <div class="story-kicker">Now Playing</div>
+              <div class="story-current" id="story-current">
+                <div class="story-bubble latest">等待进入玩法。</div>
+              </div>
+              <div class="story-caption" id="story-caption">进入玩法后，这里会优先显示最近推进的剧情片段。</div>
+            </div>
+            <details class="history-wrap">
+              <summary>
+                <span>完整过程</span>
+                <span class="history-label" id="history-count">0 条记录</span>
+              </summary>
+              <div class="history-log" id="log"></div>
+            </details>
+          </div>
+          <div class="outcome" id="outcome"></div>
+        </article>
+
         <article class="card actions-card">
           <div class="section-head">
             <div>
-              <h3 class="panel-title">当前动作</h3>
+              <h3 class="panel-title">下一步怎么做</h3>
               <p>动作会随玩法完全变化，而不是统一的“推进主线”。</p>
             </div>
             <div class="muted" id="turn-meta">未开始</div>
           </div>
           <div class="actions" id="actions"></div>
-        </article>
-
-        <article class="card log-card">
-          <div class="section-head">
-            <div>
-              <h3 class="panel-title">过程记录</h3>
-              <p>手机端先看当前剧情，历史记录放到后面慢慢翻。</p>
-            </div>
-            <div class="subtle">向下滚动可查看完整记录</div>
-          </div>
-          <div class="log" id="log">等待进入玩法。</div>
-          <div class="outcome" id="outcome"></div>
         </article>
       </div>
 
@@ -799,8 +897,13 @@
         avatar: document.getElementById("avatar"),
         mobileGenre: document.getElementById("mobile-genre"),
         mobileStatus: document.getElementById("mobile-status"),
-        mobileTurn: document.getElementById("mobile-turn")
+        mobileTurn: document.getElementById("mobile-turn"),
+        storyCurrent: document.getElementById("story-current"),
+        storyCaption: document.getElementById("story-caption"),
+        storyProgress: document.getElementById("story-progress"),
+        historyCount: document.getElementById("history-count")
       },
+      logEntries: [],
 
       async init() {
         this.pack = window.SCENARIO_PACK || await this.fetchPack();
@@ -858,7 +961,8 @@
         this.ui.turnMeta.textContent = "未开始";
         this.ui.actions.innerHTML = "";
         this.ui.metrics.innerHTML = "";
-        this.ui.log.textContent = "等待进入玩法。";
+        this.logEntries = [];
+        this.renderLog();
         this.ui.outcome.classList.remove("active");
         this.ui.outcome.textContent = "";
         this.ui.endingHint.textContent = "进入玩法后会根据当前状态提示你正在靠近哪种结局。";
@@ -877,7 +981,8 @@
         this.currentActions = [];
         this.turn = 1;
         this.ended = false;
-        this.ui.log.textContent = "";
+        this.logEntries = [];
+        this.renderLog();
         this.ui.outcome.classList.remove("active");
         this.ui.outcome.textContent = "";
 
@@ -1080,15 +1185,45 @@
         const progressText = progressKey ? `${this.labelFor(progressKey)} ${this.state[progressKey]}/${this.state.max_time}` : `回合 ${this.turn}`;
         this.ui.turnMeta.textContent = `第 ${this.turn} 步 | ${progressText}`;
         this.ui.mobileTurn.textContent = progressText;
+        this.ui.storyProgress.textContent = `第 ${this.turn} 步进行中`;
         this.renderHeroStats();
         this.renderActions();
         this.renderMetrics();
         this.renderHint();
       },
 
+      renderLog() {
+        const entries = this.logEntries.slice();
+        const current = entries.slice(-2);
+        this.ui.storyCurrent.innerHTML = "";
+        if (!current.length) {
+          this.ui.storyCurrent.innerHTML = `<div class="story-bubble latest">等待进入玩法。</div>`;
+          this.ui.storyCaption.textContent = "进入玩法后，这里会优先显示最近推进的剧情片段。";
+        } else {
+          current.forEach((entry, index) => {
+            const bubble = document.createElement("div");
+            bubble.className = `story-bubble${index === current.length - 1 ? " latest" : ""}`;
+            bubble.textContent = entry.text;
+            this.ui.storyCurrent.appendChild(bubble);
+          });
+          this.ui.storyCaption.textContent = entries.length > 2 ? "上方展示最近两段关键推进，完整经过可以展开下面的时间线。" : "你现在看到的是本轮最新剧情。";
+        }
+
+        this.ui.log.innerHTML = "";
+        entries.forEach((entry) => {
+          const line = document.createElement("div");
+          line.className = "log-entry";
+          line.innerHTML = `<div class="log-time">${entry.time}</div><div class="log-text"></div>`;
+          line.querySelector(".log-text").textContent = entry.text;
+          this.ui.log.appendChild(line);
+        });
+        this.ui.historyCount.textContent = `${entries.length} 条记录`;
+      },
+
       logLine(text) {
         const now = new Date().toLocaleTimeString("zh-CN", { hour12: false });
-        this.ui.log.textContent += `${now} ${text}\n`;
+        this.logEntries.push({ time: now, text });
+        this.renderLog();
         this.ui.log.scrollTop = this.ui.log.scrollHeight;
       }
     };
