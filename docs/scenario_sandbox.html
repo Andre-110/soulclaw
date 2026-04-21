@@ -335,34 +335,40 @@
     }
     @media (max-width: 700px) {
       .shell { padding: 14px 12px 28px; }
-      .hero { padding: 18px 16px; border-radius: 20px; }
+      .hero { padding: 14px 13px; border-radius: 18px; }
       .hero-top { flex-direction: column; }
       .hero-meta { display: none; }
-      .hero h1 { font-size: 2rem; }
+      .hero h1 { font-size: 1.62rem; line-height: 1.1; }
       .hero p {
-        font-size: 0.94rem;
+        font-size: 0.84rem;
         display: -webkit-box;
-        -webkit-line-clamp: 3;
+        -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
       }
       .controls {
         display: grid;
         grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 12px;
       }
       .controls select {
         grid-column: 1 / -1;
         min-width: 0;
         width: 100%;
+        padding: 9px 12px;
+        font-size: 0.92rem;
       }
       .controls button {
         width: 100%;
-        min-height: 48px;
+        min-height: 42px;
+        padding: 9px 12px;
+        font-size: 0.9rem;
       }
-      .mobile-strip { display: flex; }
+      .mobile-strip { display: flex; margin-top: 10px; gap: 6px; }
       .content { margin-top: 14px; gap: 14px; }
       .col { gap: 14px; }
-      .card { padding: 14px; border-radius: 18px; }
+      .card { padding: 12px; border-radius: 16px; }
       .faculty-grid { grid-template-columns: 1fr; }
       .log-card { order: 1; }
       .faculty-card { order: 2; }
@@ -370,71 +376,99 @@
       .metrics-card { order: 3; }
       .ending-card { order: 4; }
       .avatar {
-        width: 76px;
-        height: 76px;
-        border-radius: 18px;
-        font-size: 1.5rem;
+        width: 62px;
+        height: 62px;
+        border-radius: 16px;
+        font-size: 1.2rem;
       }
       .pill-row { gap: 6px; }
-      .pill { font-size: 0.8rem; padding: 4px 8px; }
+      .pill { font-size: 0.75rem; padding: 3px 7px; }
       .hero-stats {
-        display: flex;
-        overflow-x: auto;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 10px;
-        padding-bottom: 4px;
-        scroll-snap-type: x proximity;
       }
       .stat {
-        min-width: 132px;
-        scroll-snap-align: start;
+        min-width: 0;
+        padding: 10px;
+        border-radius: 14px;
+      }
+      .stat .value {
+        font-size: 1.15rem;
       }
       .note {
-        font-size: 0.9rem;
+        font-size: 0.82rem;
         line-height: 1.55;
+        padding: 10px 11px;
+        margin-top: 10px;
       }
       .section-head {
         flex-direction: column;
         align-items: start;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
+        gap: 4px;
       }
-      .section-head p { margin-top: 2px; }
+      .section-head p { margin-top: 2px; font-size: 0.82rem; }
+      .panel-title { font-size: 1.05rem; }
       .actions {
         grid-template-columns: 1fr;
-        gap: 10px;
+        gap: 8px;
       }
       .action {
         min-height: 0;
-        padding: 14px 12px;
+        padding: 11px 10px;
+        border-radius: 15px;
       }
-      .action-name { font-size: 1rem; }
+      .action-name { font-size: 0.95rem; margin-bottom: 4px; }
       .action-desc {
         min-height: 0;
-        font-size: 0.88rem;
+        font-size: 0.82rem;
+        line-height: 1.45;
       }
-      .action-meta { margin-top: 8px; }
+      .action-meta { margin-top: 6px; font-size: 0.73rem; line-height: 1.45; }
       .metrics {
         grid-template-columns: 1fr 1fr;
-        gap: 10px;
+        gap: 8px;
       }
       .metric {
-        padding: 12px;
-        border-radius: 16px;
+        padding: 10px;
+        border-radius: 14px;
       }
-      .metric .value { font-size: 1.35rem; }
-      .story-stage { padding: 14px; }
+      .metric .label { font-size: 0.78rem; }
+      .metric .value { font-size: 1.12rem; margin-top: 5px; }
+      .story-stage { padding: 12px; border-radius: 16px; }
+      .story-kicker { font-size: 0.72rem; }
       .story-bubble {
-        font-size: 0.92rem;
-        padding: 12px;
+        font-size: 0.86rem;
+        padding: 10px 11px;
+        line-height: 1.58;
+      }
+      .story-caption {
+        font-size: 0.78rem;
+        line-height: 1.5;
       }
       .history-wrap summary {
-        padding: 11px 12px;
-        font-size: 0.92rem;
+        padding: 10px 11px;
+        font-size: 0.84rem;
       }
       .history-log {
-        max-height: 220px;
-        padding: 10px 12px 12px;
+        max-height: 180px;
+        padding: 9px 11px 11px;
       }
-      .log-text { font-size: 0.86rem; line-height: 1.55; }
+      .log-text { font-size: 0.8rem; line-height: 1.5; }
+      .outcome { padding: 11px; font-size: 0.84rem; line-height: 1.56; }
+    }
+    @media (max-width: 420px) {
+      .shell { padding: 10px 10px 22px; }
+      .hero { padding: 12px 11px; }
+      .hero h1 { font-size: 1.42rem; }
+      .eyebrow { font-size: 0.72rem; padding: 3px 8px; }
+      .mobile-strip { gap: 5px; }
+      .pill { font-size: 0.7rem; }
+      .card { padding: 10px; }
+      .hero-stats, .metrics { grid-template-columns: 1fr 1fr; gap: 7px; }
+      .stat, .metric { padding: 9px; }
+      .story-bubble { font-size: 0.82rem; }
     }
   </style>
 </head>
@@ -1087,14 +1121,16 @@
 
         this.applyDelta(action.cost, -1);
         this.applyDelta(action.effect, 1);
-        this.logLine(this.behavior().actionLog(actionId, this.scenario, action));
-        this.behavior().extra(actionId, this.state, Math.random, (line) => this.logLine(line));
+        const leadLine = this.behavior().actionLog(actionId, this.scenario, action);
+        const extraLines = [];
+        this.behavior().extra(actionId, this.state, Math.random, (line) => extraLines.push(line));
         this.behavior().passive(this.state);
         this.turn += 1;
-        this.runEvents();
+        const events = this.runEvents();
         this.normalizeState();
 
         const outcome = this.checkOutcome();
+        this.logLine(this.composeNarrativeTurn(action, leadLine, extraLines, events, outcome));
         if (outcome) {
           this.ended = true;
           this.setStatus(outcome.type === "win" ? "达成结局" : "触发结局", outcome.type === "win" ? "good" : "bad");
@@ -1116,12 +1152,78 @@
       },
 
       runEvents() {
+        const triggered = [];
         this.scenario.random_events.forEach((event) => {
           if (Math.random() < event.probability) {
             this.applyDelta(event.effect, 1);
-            this.logLine(event.message);
+            triggered.push(event);
           }
         });
+        return triggered;
+      },
+
+      narrativePrefix() {
+        return {
+          dogblood: "离谱的是",
+          qingjiao: "紧接着",
+          esports: "随即",
+          startup: "下一秒",
+          film: "镜头一转",
+          rebuild: "与此同时",
+          campus: "随后",
+          generic: "接着"
+        }[this.meta().mode] || "接着";
+      },
+
+      summarizeDelta(delta, sign = 1) {
+        const entries = Object.entries(delta || {})
+          .filter(([, value]) => value)
+          .map(([key, value]) => {
+            const amount = value * sign;
+            return `${this.labelFor(key)}${amount > 0 ? "上升" : "下降"}${Math.abs(amount)}`;
+          });
+        if (!entries.length) return "";
+        return entries.slice(0, 3).join("，");
+      },
+
+      stateFocusLine() {
+        const featuredKeys = (this.meta().featured_keys || []).slice(0, 2);
+        if (!featuredKeys.length) return "";
+        return featuredKeys.map((key) => `${this.labelFor(key)}来到 ${this.state[key]}`).join("，");
+      },
+
+      composeNarrativeTurn(action, leadLine, extraLines, events, outcome) {
+        const parts = [];
+        parts.push(leadLine);
+
+        const gainText = this.summarizeDelta(action.effect, 1);
+        const costText = this.summarizeDelta(action.cost, -1);
+        if (gainText || costText) {
+          parts.push(
+            `${this.narrativePrefix()}这一手让局面明显动了起来，${[gainText, costText].filter(Boolean).join("，")}。`
+          );
+        }
+
+        if (extraLines.length) {
+          parts.push(extraLines.join(" "));
+        }
+
+        if (events.length) {
+          parts.push(events.map((event) => event.message).join(" "));
+        }
+
+        const focus = this.stateFocusLine();
+        if (focus) {
+          parts.push(`眼下最直观的变化是：${focus}。`);
+        }
+
+        if (outcome) {
+          parts.push(outcome.type === "win" ? "这一步已经把你直接推到了结局门口。" : "这一步的后坐力比预想更大，局势当场收束成了结局。");
+        } else {
+          parts.push(`下一步的空气已经变了：${this.behavior().hint(this.state)}`);
+        }
+
+        return parts.join(" ");
       },
 
       renderHeroStats() {
