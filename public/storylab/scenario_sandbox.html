@@ -960,6 +960,7 @@
         this.ui.select.innerHTML = "";
         const featured = this.pack.scenarios.filter((item) => item.metadata && item.metadata.featured);
         const experimental = this.pack.scenarios.filter((item) => !item.metadata || !item.metadata.featured);
+        const urlScenario = new URLSearchParams(window.location.search).get("scenario");
         const appendGroup = (label, items) => {
           if (!items.length) return;
           const group = document.createElement("optgroup");
@@ -974,7 +975,7 @@
         };
         appendGroup("主玩法", featured);
         appendGroup("实验场景", experimental);
-        const defaultScenario = featured[0] || this.pack.scenarios[0];
+        const defaultScenario = this.pack.scenarios.find((item) => item.id === urlScenario) || featured[0] || this.pack.scenarios[0];
         if (defaultScenario) this.ui.select.value = defaultScenario.id;
       },
 

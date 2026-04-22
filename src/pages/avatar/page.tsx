@@ -7,6 +7,7 @@ import PuaSimulatorModal from './components/PuaSimulatorModal';
 import LoveShowSimulatorModal from './components/LoveShowSimulatorModal';
 import DoomsdaySimulatorModal from './components/DoomsdaySimulatorModal';
 import TravelSimulatorModal from './components/TravelSimulatorModal';
+import RichSimulatorModal from './components/RichSimulatorModal';
 import AnthologySimulatorModal from './components/AnthologySimulatorModal';
 import { SIMULATORS } from '@/mocks/starData';
 
@@ -25,7 +26,34 @@ interface CheckInRecord {
   color: string;
 }
 
+interface SimulatorSection {
+  title: string;
+  subtitle: string;
+  badge: string;
+  ids: number[];
+}
+
 const STAR_COLORS = ['#A29BFE', '#00D1FF', '#FDCB6E', '#FF7675', '#55EFC4', '#74B9FF', '#FD79A8'];
+const SIMULATOR_SECTIONS: SimulatorSection[] = [
+  {
+    title: '爆改逆袭',
+    subtitle: '狗血、末日、穿越、暴富这些强情节玩法放在一起，更适合一口气连玩。',
+    badge: '主推玩法',
+    ids: [1, 2, 3, 4, 5],
+  },
+  {
+    title: '多线剧场',
+    subtitle: '这是新接入的多玩法剧情剧场，里面能继续切换青椒、生存、创业、电竞等独立世界线。',
+    badge: '新增剧场',
+    ids: [21, 22, 23, 24, 25, 26, 27],
+  },
+  {
+    title: '轻人生支线',
+    subtitle: '更偏生活方式和身份体验，适合慢节奏代入。',
+    badge: '休闲体验',
+    ids: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+  },
+];
 
 function getInitialCheckIns(): CheckInRecord[] {
   try {
@@ -122,7 +150,9 @@ export default function AvatarPage() {
         <DoomsdaySimulatorModal sim={activeSimulator} onClose={() => setActiveSimulator(null)} />
       ) : activeSimulator?.id === 4 ? (
         <TravelSimulatorModal sim={activeSimulator} onClose={() => setActiveSimulator(null)} />
-      ) : activeSimulator?.id === 21 ? (
+      ) : activeSimulator?.id === 5 ? (
+        <RichSimulatorModal sim={activeSimulator} onClose={() => setActiveSimulator(null)} />
+      ) : [21, 22, 23, 24, 25, 26, 27].includes(activeSimulator?.id || 0) ? (
         <AnthologySimulatorModal sim={activeSimulator} onClose={() => setActiveSimulator(null)} />
       ) : activeSimulator ? (
         <SimulatorModal sim={activeSimulator} onClose={() => setActiveSimulator(null)} />
@@ -301,10 +331,35 @@ export default function AvatarPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              {SIMULATORS.filter((sim) => sim.id === 1 || sim.id === 2 || sim.id === 3 || sim.id === 4).map((sim) => (
-                <SimulatorCard key={sim.id} sim={sim} onClick={setActiveSimulator} />
-              ))}
+            <div className="flex flex-col gap-5">
+              {SIMULATOR_SECTIONS.map((section) => {
+                const sims = SIMULATORS.filter((sim) => section.ids.includes(sim.id));
+                if (!sims.length) return null;
+                return (
+                  <section key={section.title}>
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <div>
+                        <h3 className="font-orbitron text-sm font-bold" style={{ color: '#E0EFFF' }}>{section.title}</h3>
+                        <p className="text-xs font-noto mt-1 leading-relaxed" style={{ color: 'rgba(224,239,255,0.5)' }}>
+                          {section.subtitle}
+                        </p>
+                      </div>
+                      <div
+                        className="px-2.5 py-1 rounded-full text-[10px] font-noto font-semibold shrink-0"
+                        style={{ background: 'rgba(162,155,254,0.12)', border: '1px solid rgba(162,155,254,0.22)', color: '#C3B5FF' }}
+                      >
+                        {section.badge}
+                      </div>
+                    </div>
+
+                    <div className={`grid gap-3 ${section.ids.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+                      {sims.map((sim) => (
+                        <SimulatorCard key={`${section.title}-${sim.id}-${sim.name}`} sim={sim} onClick={setActiveSimulator} />
+                      ))}
+                    </div>
+                  </section>
+                );
+              })}
             </div>
 
             {/* ── Star check-in section ── */}

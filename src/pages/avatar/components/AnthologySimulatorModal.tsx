@@ -4,6 +4,7 @@ interface Simulator {
   icon: string;
   color: string;
   desc: string;
+  scenarioId?: string;
 }
 
 interface Props {
@@ -11,9 +12,21 @@ interface Props {
   onClose: () => void;
 }
 
-const storyLabHref = `${__BASE_PATH__}storylab/scenario_sandbox.html`;
+const scenarioCopy: Record<string, string> = {
+  qingjiao_sim: '青椒生存会直接开到论文、基金、学生与家庭同时失衡的高校生存线。',
+  esports_manager: '电竞经理会直接进入赛季压力线，重点看队伍磨合、版本博弈和舆论风暴。',
+  startup_pivot: '创业转型会直接打开 180 天生死线，测试现金流、增长和团队协同。',
+  film_production: '独立制片会把你直接送进片场，把预算、剧组关系和成片质量绑在一起。',
+  disaster_rebuild: '灾后重建会直接跳到秩序恢复阶段，重点考验信任、库存和调度。',
+  campus_governance: '校园改革会直接进入改革落地线，看支持度、争议度和制度阻力如何拉扯。',
+};
 
 export default function AnthologySimulatorModal({ sim, onClose }: Props) {
+  const storyLabHref = `${__BASE_PATH__}storylab/scenario_sandbox.html${sim.scenarioId ? `?scenario=${sim.scenarioId}` : ''}`;
+  const leadCopy = sim.scenarioId
+    ? (scenarioCopy[sim.scenarioId] || '这里会直接带你进入对应场景，不用再手动切换下拉框。')
+    : '这里接入了我们新做的多玩法剧情模拟器，包含狗血逆袭、青椒生存、电竞经理、创业转型、片场制作、灾后重建、校园治理等独立玩法。';
+
   return (
     <div className="fixed inset-0 z-50 flex flex-col" style={{ background: '#0B1020' }}>
       <div className="flex items-center gap-3 px-4 pt-10 pb-4">
@@ -57,7 +70,7 @@ export default function AnthologySimulatorModal({ sim, onClose }: Props) {
             <span className="text-xs font-orbitron tracking-wider" style={{ color: '#74B9FF' }}>ANTHOLOGY MODE</span>
           </div>
           <p className="text-sm leading-relaxed" style={{ color: 'rgba(224,239,255,0.72)' }}>
-            这里接入了我们新做的多玩法剧情模拟器，包含狗血逆袭、青椒生存、电竞经理、创业转型、片场制作、灾后重建、校园治理等独立玩法。
+            {leadCopy}
           </p>
         </div>
       </div>
