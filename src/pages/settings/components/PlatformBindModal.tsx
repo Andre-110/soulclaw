@@ -1,4 +1,6 @@
 import { useState, useRef } from 'react';
+import { getClientId } from '@/lib/clientId';
+import { savePlatformBinding } from '@/lib/reportApi';
 
 export interface PlatformData {
   id: string;
@@ -13,7 +15,7 @@ export interface PlatformData {
 interface Props {
   platform: PlatformData;
   onClose: () => void;
-  onSave: (updated: PlatformData) => void;
+  onSave: (updated: PlatformData) => Promise<void> | void;
 }
 
 export default function PlatformBindModal({ platform, onClose, onSave }: Props) {
@@ -21,6 +23,8 @@ export default function PlatformBindModal({ platform, onClose, onSave }: Props) 
   const [screenshot, setScreenshot] = useState(platform.screenshot || '');
   const [screenshotName, setScreenshotName] = useState('');
   const [tab, setTab] = useState<'link' | 'screenshot'>('link');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,13 +39,27 @@ export default function PlatformBindModal({ platform, onClose, onSave }: Props) 
   const canSave = link.trim() !== '' || screenshot !== '';
 
   const handleSave = () => {
-    onSave({
-      ...platform,
-      link: link.trim(),
-      screenshot,
-      bound: canSave,
-    });
-    onClose();
+    void (async () => {
+      try {
+        setSaving(true);
+        setError('');
+        const cleanedLink = link.trim();
+        if (cleanedLink) {
+          await savePlatformBinding(getClientId(), platform.id, cleanedLink);
+        }
+        await onSave({
+          ...platform,
+          link: cleanedLink,
+          screenshot,
+          bound: canSave,
+        });
+        onClose();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : '绑定失败');
+      } finally {
+        setSaving(false);
+      }
+    })();
   };
 
   return (
@@ -111,7 +129,7 @@ export default function PlatformBindModal({ platform, onClose, onSave }: Props) 
             {link && (
               <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: 'rgba(0,209,255,0.08)', border: '1px solid rgba(0,209,255,0.2)' }}>
                 <i className="ri-checkbox-circle-line text-sm" style={{ color: '#00D1FF' }} />
-                <span className="text-xs font-noto" style={{ color: '#00D1FF' }}>已输入链接，保存后 AI 将解析你的内容</span>
+                <span className="text-xs font-noto" style={{ color: '#00D1FF' }}>已输入链接，保存后会进入真实分析链路</span>
               </div>
             )}
           </div>
@@ -151,6 +169,15 @@ export default function PlatformBindModal({ platform, onClose, onSave }: Props) 
           </div>
         )}
 
+        {error && (
+          <div
+            className="mt-4 px-3 py-2 rounded-xl text-xs font-noto"
+            style={{ background: 'rgba(255,118,117,0.08)', border: '1px solid rgba(255,118,117,0.18)', color: '#FF9AA2' }}
+          >
+            {error}
+          </div>
+        )}
+
         <div className="flex gap-3 mt-6">
           <button
             onClick={onClose}
@@ -161,15 +188,15 @@ export default function PlatformBindModal({ platform, onClose, onSave }: Props) 
           </button>
           <button
             onClick={handleSave}
-            disabled={!canSave}
+            disabled={!canSave || saving}
             className="flex-1 py-3.5 rounded-2xl text-sm font-noto font-bold cursor-pointer whitespace-nowrap transition-all duration-200"
             style={{
-              background: canSave ? 'linear-gradient(135deg,rgba(108,92,231,0.8),rgba(0,209,255,0.6))' : 'rgba(255,255,255,0.07)',
-              color: canSave ? '#E0EFFF' : 'rgba(224,239,255,0.3)',
-              border: canSave ? '1px solid rgba(108,92,231,0.5)' : '1px solid transparent',
+              background: canSave && !saving ? 'linear-gradient(135deg,rgba(108,92,231,0.8),rgba(0,209,255,0.6))' : 'rgba(255,255,255,0.07)',
+              color: canSave && !saving ? '#E0EFFF' : 'rgba(224,239,255,0.3)',
+              border: canSave && !saving ? '1px solid rgba(108,92,231,0.5)' : '1px solid transparent',
             }}
           >
-            确认绑定
+            {saving ? '保存中...' : '确认绑定'}
           </button>
         </div>
       </div>

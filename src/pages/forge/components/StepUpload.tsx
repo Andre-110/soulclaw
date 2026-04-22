@@ -20,6 +20,15 @@ export default function StepUpload({ onNext }: Props) {
   const [uploaded, setUploaded] = useState<string[]>([]);
   const [linkInput, setLinkInput] = useState('');
   const [analyzing, setAnalyzing] = useState(false);
+  const boundCount = (() => {
+    try {
+      const raw = localStorage.getItem('settings_platforms');
+      if (!raw) return 0;
+      return (JSON.parse(raw) as Array<{ bound?: boolean }>).filter((item) => item.bound).length;
+    } catch {
+      return 0;
+    }
+  })();
 
   const handleUpload = (platformId: string) => {
     if (uploaded.includes(platformId)) return;
@@ -56,7 +65,7 @@ export default function StepUpload({ onNext }: Props) {
           上传社交素材
         </h2>
         <p className="text-xs font-noto" style={{ color: 'rgba(224,239,255,0.65)' }}>
-          支持截图或主页链接，AI自动解析
+          支持截图或主页链接，已在设置页绑定的平台会自动进入后端分析
         </p>
       </div>
 
@@ -179,6 +188,23 @@ export default function StepUpload({ onNext }: Props) {
           <i className="ri-checkbox-circle-line" style={{ color: '#00D1FF' }} />
           <span className="text-xs font-noto" style={{ color: '#81ECEC' }}>
             已上传 {uploaded.length} 个平台素材，AI正在提取标签...
+          </span>
+        </div>
+      )}
+
+      {boundCount > 0 && (
+        <div
+          className="flex items-center gap-2 px-4 py-3 rounded-xl"
+          style={{
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            background: 'rgba(108,92,231,0.08)',
+            border: '1px solid rgba(108,92,231,0.22)',
+          }}
+        >
+          <i className="ri-links-line" style={{ color: '#A29BFE' }} />
+          <span className="text-xs font-noto" style={{ color: '#C3B5FF' }}>
+            检测到设置页已绑定 {boundCount} 个平台，生成报告时会一起抓取
           </span>
         </div>
       )}

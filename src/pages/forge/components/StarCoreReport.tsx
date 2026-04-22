@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getClientId } from '@/lib/clientId';
+import { analyzeProfile, fetchLatestReport, type SoulReport } from '@/lib/reportApi';
 
 interface Profile {
   nickname: string;
@@ -24,16 +26,35 @@ const GLASS_CARD: React.CSSProperties = {
   boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12)',
 };
 
+const ANALYZE_PHASES = [
+  '正在整理你的分身标签...',
+  '正在读取已绑定的平台链接...',
+  '正在抓取公开主页中的可见信息...',
+  '正在汇总人格线索并生成报告...',
+];
+
+function buildQuestionnaireSummary(profile: Profile) {
+  return Object.entries(profile.answers || {})
+    .filter(([, value]) => Boolean(value))
+    .map(([key, value], index) => `Q${index + 1}【${key}】${value}`)
+    .join('\n\n');
+}
+
 export default function StarCoreReport() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [starId] = useState(
     () =>
       `STAR-${Math.floor(1000 + Math.random() * 9000)}-${String.fromCharCode(
-        65 + Math.floor(Math.random() * 26)
-      )}${String.fromCharCode(65 + Math.floor(Math.random() * 26))}`
+        65 + Math.floor(Math.random() * 26),
+      )}${String.fromCharCode(65 + Math.floor(Math.random() * 26))}`,
   );
   const [revealed, setRevealed] = useState(false);
+  const [report, setReport] = useState<SoulReport | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [phaseIndex, setPhaseIndex] = useState(0);
+  const [debugSummary, setDebugSummary] = useState('');
 
   useEffect(() => {
     const raw = localStorage.getItem('star_profile');
@@ -42,37 +63,68 @@ export default function StarCoreReport() {
     return () => clearTimeout(t);
   }, []);
 
+  useEffect(() => {
+    if (!profile) return;
+    let active = true;
+    const phaseTimer = window.setInterval(() => {
+      setPhaseIndex((prev) => (prev + 1 < ANALYZE_PHASES.length ? prev + 1 : prev));
+    }, 1100);
+
+    void (async () => {
+      try {
+        setLoading(true);
+        setError('');
+        const clientId = getClientId();
+        const cached = await fetchLatestReport(clientId).catch(() => null);
+        if (cached?.report && active) {
+          setReport(cached.report);
+          setDebugSummary(cached.debug?.scrapeSummary || '');
+        }
+        const result = await analyzeProfile({
+          clientId,
+          profile,
+          questionnaireSummary: buildQuestionnaireSummary(profile),
+          openTextSummary: [profile.nickname, ...(profile.tags || [])].filter(Boolean).join(' / '),
+        });
+        if (!active) return;
+        setReport(result.report);
+        setDebugSummary(result.debug?.scrapeSummary || '');
+      } catch (err) {
+        if (!active) return;
+        setError(err instanceof Error ? err.message : '报告生成失败');
+      } finally {
+        if (!active) return;
+        setLoading(false);
+        window.clearInterval(phaseTimer);
+      }
+    })();
+
+    return () => {
+      active = false;
+      window.clearInterval(phaseTimer);
+    };
+  }, [profile]);
+
   const handleLaunch = () => {
     localStorage.setItem('star_activated', '1');
     localStorage.setItem('star_id', starId);
     navigate('/avatar');
   };
 
-  if (!profile) return null;
+  const avatarCfg = AVATAR_CONFIG[profile?.avatar || 'constellation'] || AVATAR_CONFIG.constellation;
+  const reportHeadline = useMemo(() => {
+    if (report?.title) return report.title;
+    if (profile?.tags?.length >= 2) return `${profile.tags[0]} × ${profile.tags[1]} 的稀有混合体`;
+    return '低噪音、高辨识度的稀有型分身';
+  }, [profile, report]);
 
-  const avatarCfg = AVATAR_CONFIG[profile.avatar] || AVATAR_CONFIG.constellation;
-  const personalityStyle = ['幽默风趣', '温柔细腻', '理性深刻', '高冷神秘'][
-    Math.floor(Math.random() * 4)
-  ];
-  const personalityBase = ['内省型', '探索型', '创作型', '观察型'][
-    Math.floor(Math.random() * 4)
-  ];
-  const reportHeadline = profile.tags.length >= 2
-    ? `${profile.tags[0]} × ${profile.tags[1]} 的稀有混合体`
-    : '低噪音、高辨识度的稀有型分身';
-  const socialHint = personalityStyle.includes('理性')
-    ? '更适合从共同兴趣切入，先建立稳定话题，再逐步打开情绪层。'
-    : '更适合从情绪共鸣切入，用细节和氛围感建立好感。';
-  const storyHint = personalityBase.includes('创作')
-    ? '最适合进入高反转、高表达欲、强风格化的剧情支线。'
-    : '更适合进入需要观察、判断和持续推进的剧情支线。';
+  if (!profile) return null;
 
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-start pb-16 px-4 pt-8"
       style={{ opacity: revealed ? 1 : 0, transition: 'opacity 0.6s ease' }}
     >
-      {/* Header */}
       <div className="text-center mb-8">
         <div
           className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-4"
@@ -80,7 +132,7 @@ export default function StarCoreReport() {
         >
           <i className="ri-sparkling-2-line text-xs" style={{ color: '#00D1FF' }} />
           <span className="text-xs font-orbitron tracking-widest" style={{ color: '#00D1FF' }}>
-            星核报告已生成
+            {loading ? '星核报告生成中' : '星核报告已生成'}
           </span>
         </div>
         <h1 className="font-orbitron text-2xl font-black mb-1" style={{ color: '#E0EFFF' }}>
@@ -96,16 +148,9 @@ export default function StarCoreReport() {
         </div>
       </div>
 
-      {/* Avatar display */}
       <div className="relative w-40 h-40 flex items-center justify-center mb-8">
-        <div
-          className="absolute inset-0 rounded-full animate-orbit"
-          style={{ border: `1px solid ${avatarCfg.color}30` }}
-        />
-        <div
-          className="absolute inset-4 rounded-full animate-orbit-reverse"
-          style={{ border: `1px solid ${avatarCfg.color}20` }}
-        />
+        <div className="absolute inset-0 rounded-full animate-orbit" style={{ border: `1px solid ${avatarCfg.color}30` }} />
+        <div className="absolute inset-4 rounded-full animate-orbit-reverse" style={{ border: `1px solid ${avatarCfg.color}20` }} />
         <div
           className="w-24 h-24 rounded-full flex items-center justify-center animate-breathe"
           style={{
@@ -116,22 +161,11 @@ export default function StarCoreReport() {
         >
           <i className={`${avatarCfg.icon} text-4xl`} style={{ color: avatarCfg.color }} />
         </div>
-        <div
-          className="absolute w-3 h-3 rounded-full animate-orbit"
-          style={{
-            top: '10px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            background: avatarCfg.color,
-            boxShadow: `0 0 8px ${avatarCfg.color}`,
-          }}
-        />
       </div>
 
-      {/* Tags */}
       <div className="w-full max-w-sm mb-4">
         <div className="flex flex-wrap gap-2 justify-center">
-          {profile.tags.slice(0, 8).map((tag) => (
+          {(report?.avatarTags?.length ? report.avatarTags : profile.tags.slice(0, 8)).map((tag) => (
             <span
               key={tag}
               className="px-3 py-1 rounded-full text-xs font-noto"
@@ -147,16 +181,14 @@ export default function StarCoreReport() {
         </div>
       </div>
 
-      {/* Report cards */}
       <div className="w-full max-w-sm flex flex-col gap-3 mb-8">
-        {/* Core stats */}
         <div className="p-4 rounded-2xl" style={GLASS_CARD}>
           <div className="grid grid-cols-2 gap-4">
             {[
               { label: '分身形态', value: avatarCfg.name, icon: avatarCfg.icon, color: avatarCfg.color },
-              { label: '聊天风格', value: personalityStyle, icon: 'ri-chat-smile-3-line', color: '#00D1FF' },
-              { label: '性格底色', value: personalityBase, icon: 'ri-heart-line', color: '#A29BFE' },
-              { label: '兴趣标签', value: `${profile.tags.length}个`, icon: 'ri-price-tag-3-line', color: '#74B9FF' },
+              { label: '报告人格', value: report?.mbti || '分析中', icon: 'ri-brain-line', color: '#00D1FF' },
+              { label: '平台线索', value: debugSummary ? `${debugSummary.split('|').length}个` : '读取中', icon: 'ri-radar-line', color: '#A29BFE' },
+              { label: '兴趣标签', value: `${(report?.avatarTags || profile.tags).length}个`, icon: 'ri-price-tag-3-line', color: '#74B9FF' },
             ].map((item) => (
               <div key={item.label} className="flex flex-col gap-1">
                 <div className="flex items-center gap-1.5">
@@ -173,7 +205,6 @@ export default function StarCoreReport() {
           </div>
         </div>
 
-        {/* Report generation module */}
         <div
           className="p-4 rounded-2xl"
           style={{
@@ -195,14 +226,11 @@ export default function StarCoreReport() {
               className="px-2.5 py-1 rounded-full text-[10px] font-noto font-semibold"
               style={{ background: 'rgba(116,185,255,0.14)', border: '1px solid rgba(116,185,255,0.22)', color: '#81ECEC' }}
             >
-              已深化
+              {loading ? '分析中' : '已接后端'}
             </span>
           </div>
 
-          <div
-            className="rounded-2xl px-3.5 py-3 mb-3"
-            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
-          >
+          <div className="rounded-2xl px-3.5 py-3 mb-3" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
             <div className="text-[11px] font-noto mb-1.5" style={{ color: 'rgba(224,239,255,0.48)' }}>
               星核主结论
             </div>
@@ -210,119 +238,78 @@ export default function StarCoreReport() {
               {reportHeadline}
             </div>
             <p className="text-xs font-noto mt-2 leading-relaxed" style={{ color: 'rgba(224,239,255,0.68)' }}>
-              你的资料不是“高热闹型”人格，更像会在少数特定圈层中迅速被识别的高密度表达者。
+              {loading ? ANALYZE_PHASES[phaseIndex] : report?.overall || '报告已生成，可继续进入模拟器校准人物画像。'}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-2.5">
-            {[
-              {
-                icon: 'ri-radar-line',
-                title: '社交触发点',
-                body: socialHint,
-                color: '#00D1FF',
-              },
-              {
-                icon: 'ri-quill-pen-line',
-                title: '剧情适配度',
-                body: storyHint,
-                color: '#A29BFE',
-              },
-              {
-                icon: 'ri-lightbulb-flash-line',
-                title: '后续建议',
-                body: '先保留这份报告，再去模拟器里测试不同玩法，后续可以反向校准你的分身画像。',
-                color: '#FDCB6E',
-              },
-            ].map((item) => (
-              <div
-                key={item.title}
-                className="rounded-2xl px-3.5 py-3"
-                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
-              >
-                <div className="flex items-center gap-2 mb-1.5">
-                  <i className={item.icon} style={{ color: item.color, fontSize: '13px' }} />
-                  <span className="text-xs font-noto font-semibold" style={{ color: '#E0EFFF' }}>{item.title}</span>
+          {error && (
+            <div className="rounded-2xl px-3.5 py-3 mb-3" style={{ background: 'rgba(255,118,117,0.06)', border: '1px solid rgba(255,118,117,0.16)' }}>
+              <p className="text-xs font-noto leading-relaxed" style={{ color: '#FFB0B0' }}>{error}</p>
+            </div>
+          )}
+
+          {!loading && report?.blocks?.length ? (
+            <div className="grid grid-cols-1 gap-2.5">
+              {report.blocks.slice(0, 4).map((item) => (
+                <div key={`${item.source}-${item.title}`} className="rounded-2xl px-3.5 py-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span style={{ fontSize: '13px' }}>{item.icon}</span>
+                    <span className="text-xs font-noto font-semibold" style={{ color: '#E0EFFF' }}>{item.source}</span>
+                  </div>
+                  <p className="text-[11px] font-noto mb-1" style={{ color: '#9adcf6' }}>{item.title}</p>
+                  <p className="text-xs font-noto leading-relaxed" style={{ color: 'rgba(224,239,255,0.62)' }}>
+                    {item.description}
+                  </p>
                 </div>
-                <p className="text-xs font-noto leading-relaxed" style={{ color: 'rgba(224,239,255,0.62)' }}>
-                  {item.body}
-                </p>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-2.5">
+              {ANALYZE_PHASES.map((item, index) => (
+                <div key={item} className="rounded-2xl px-3.5 py-3" style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${index <= phaseIndex ? 'rgba(0,209,255,0.2)' : 'rgba(255,255,255,0.07)'}` }}>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <i className={`${index < phaseIndex ? 'ri-checkbox-circle-line' : index === phaseIndex ? 'ri-loader-4-line animate-spin' : 'ri-time-line'}`} style={{ color: index <= phaseIndex ? '#00D1FF' : 'rgba(224,239,255,0.4)', fontSize: '13px' }} />
+                    <span className="text-xs font-noto font-semibold" style={{ color: '#E0EFFF' }}>分析步骤 {index + 1}</span>
+                  </div>
+                  <p className="text-xs font-noto leading-relaxed" style={{ color: 'rgba(224,239,255,0.62)' }}>{item}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* Answers highlight */}
-        {Object.entries(profile.answers).length > 0 && (
+        {report?.article?.section4?.finalCard && (
           <div
             className="p-4 rounded-2xl"
             style={{
               backdropFilter: 'blur(24px) saturate(180%)',
               WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-              background: 'linear-gradient(135deg, rgba(0,209,255,0.1) 0%, rgba(0,209,255,0.04) 100%)',
-              border: '1px solid rgba(0,209,255,0.2)',
-              boxShadow: 'inset 0 1px 0 rgba(0,209,255,0.15)',
+              background: 'linear-gradient(135deg, rgba(108,92,231,0.12) 0%, rgba(108,92,231,0.05) 100%)',
+              border: '1px solid rgba(108,92,231,0.22)',
+              boxShadow: 'inset 0 1px 0 rgba(162,155,254,0.12)',
             }}
           >
             <div className="flex items-center gap-2 mb-3">
-              <i className="ri-sparkling-line text-xs" style={{ color: '#00D1FF' }} />
-              <span className="text-xs font-orbitron tracking-wider" style={{ color: '#00D1FF' }}>
-                小众标签
+              <i className="ri-radar-line text-xs" style={{ color: '#A29BFE' }} />
+              <span className="text-xs font-orbitron tracking-wider" style={{ color: '#A29BFE' }}>
+                最终建议
               </span>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {Object.values(profile.answers)
-                .filter(Boolean)
-                .map((v, i) => (
-                  <span
-                    key={i}
-                    className="px-2.5 py-1 rounded-full text-xs font-noto"
-                    style={{
-                      background: 'rgba(0,209,255,0.12)',
-                      border: '1px solid rgba(0,209,255,0.3)',
-                      color: '#81ECEC',
-                    }}
-                  >
-                    {v}
-                  </span>
-                ))}
+            <p className="text-xs font-noto leading-relaxed mb-2" style={{ color: 'rgba(224,239,255,0.75)' }}>
+              {report.article.section4.finalCard.intro}
+            </p>
+            <div className="flex flex-col gap-1.5">
+              {(report.article.section4.finalCard.summaryLines || []).map((line) => (
+                <div key={line} className="flex items-start gap-2">
+                  <i className="ri-sparkling-line mt-0.5" style={{ color: '#C3B5FF', fontSize: '11px' }} />
+                  <span className="text-xs font-noto" style={{ color: 'rgba(224,239,255,0.68)' }}>{line}</span>
+                </div>
+              ))}
             </div>
           </div>
         )}
-
-        {/* Match prediction */}
-        <div
-          className="p-4 rounded-2xl"
-          style={{
-            backdropFilter: 'blur(24px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-            background: 'linear-gradient(135deg, rgba(108,92,231,0.12) 0%, rgba(108,92,231,0.05) 100%)',
-            border: '1px solid rgba(108,92,231,0.22)',
-            boxShadow: 'inset 0 1px 0 rgba(162,155,254,0.12)',
-          }}
-        >
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <i className="ri-radar-line text-xs" style={{ color: '#A29BFE' }} />
-              <span className="text-xs font-orbitron tracking-wider" style={{ color: '#A29BFE' }}>
-                匹配预测
-              </span>
-            </div>
-            <span
-              className="font-orbitron text-sm font-bold"
-              style={{ color: '#C3B5FF', textShadow: '0 0 10px rgba(162,155,254,0.6)' }}
-            >
-              HIGH
-            </span>
-          </div>
-          <p className="text-xs font-noto leading-relaxed" style={{ color: 'rgba(224,239,255,0.75)' }}>
-            基于你的{profile.tags.slice(0, 2).join('、')}标签，
-            预计将在宇宙匹配池找到高契合度同好，分身即将开始代聊旅程。
-          </p>
-        </div>
       </div>
 
-      {/* Buttons */}
       <div className="w-full max-w-sm flex flex-col gap-3">
         <button
           onClick={handleLaunch}
@@ -348,9 +335,7 @@ export default function StarCoreReport() {
             color: 'rgba(224,239,255,0.65)',
           }}
           onClick={() => {
-            const text = `我的星核报告\nID: ${starId}\n分身形态: ${avatarCfg.name}\n兴趣: ${profile.tags
-              .slice(0, 4)
-              .join('、')}`;
+            const text = `我的星核报告\nID: ${starId}\n标题: ${reportHeadline}\n概述: ${report?.overall || ''}`;
             navigator.clipboard?.writeText(text).catch(() => {});
           }}
         >
@@ -361,11 +346,20 @@ export default function StarCoreReport() {
         </button>
       </div>
 
-      {/* Bottom guard */}
+      {debugSummary && (
+        <div className="mt-6 w-full max-w-sm rounded-2xl px-4 py-3" style={{ background: 'rgba(0,209,255,0.05)', border: '1px solid rgba(0,209,255,0.12)' }}>
+          <div className="flex items-center gap-2 mb-2">
+            <i className="ri-terminal-box-line text-xs" style={{ color: '#00D1FF' }} />
+            <span className="text-xs font-orbitron tracking-wider" style={{ color: '#00D1FF' }}>抓取摘要</span>
+          </div>
+          <p className="text-[11px] font-noto leading-relaxed" style={{ color: 'rgba(224,239,255,0.55)' }}>{debugSummary}</p>
+        </div>
+      )}
+
       <div className="mt-8 flex items-center gap-2">
         <i className="ri-shield-keyhole-line text-xs" style={{ color: 'rgba(0,209,255,0.5)' }} />
         <span className="text-xs font-noto" style={{ color: 'rgba(224,239,255,0.4)' }}>
-          星核守护 · 所有数据本地加密，真人信息全程脱敏
+          星核守护 · 当前版本已接入后端分析链，可继续补充更多平台登录态提升抓取稳定性
         </span>
       </div>
     </div>
