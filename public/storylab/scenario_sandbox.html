@@ -3,268 +3,224 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>多玩法剧情模拟器</title>
+  <title>SoulClaw StoryLab</title>
   <style>
     :root {
       --bg: #efe6d6;
       --paper: #fffaf2;
-      --ink: #223046;
-      --muted: #6c675f;
-      --line: #c9baa0;
-      --accent: #8f3126;
-      --accent-2: #c9892b;
-      --deep: #334a67;
-      --good: #2e7351;
-      --warn: #b06a1f;
-      --bad: #a33c38;
-      --shadow: 0 18px 36px rgba(34, 48, 70, 0.12);
+      --panel: rgba(255, 250, 242, 0.96);
+      --ink: #213248;
+      --muted: #6e685d;
+      --line: #d3c1a5;
+      --line-strong: #b99b70;
+      --accent: #8b3428;
+      --accent-2: #c98d34;
+      --deep: #334d69;
+      --good: #2f7052;
+      --warn: #a96722;
+      --bad: #a13e38;
+      --shadow: 0 18px 50px rgba(33, 50, 72, 0.12);
+      --shadow-soft: 0 10px 24px rgba(33, 50, 72, 0.08);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
     }
     * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
     body {
-      margin: 0;
-      font-family: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", serif;
+      font-family: "Noto Serif SC", "Source Han Serif SC", "Songti SC", serif;
       color: var(--ink);
       background:
-        radial-gradient(circle at top left, rgba(143, 49, 38, 0.08), transparent 28%),
-        radial-gradient(circle at top right, rgba(51, 74, 103, 0.08), transparent 26%),
-        linear-gradient(180deg, #f5efe3, var(--bg));
-      min-height: 100vh;
+        radial-gradient(circle at top left, rgba(139, 52, 40, 0.1), transparent 28%),
+        radial-gradient(circle at top right, rgba(51, 77, 105, 0.11), transparent 26%),
+        linear-gradient(180deg, #f6f0e4, #ece1cf 58%, #e8dcc9);
     }
-    .shell { max-width: 1240px; margin: 0 auto; padding: 24px 18px 40px; }
+    .shell { max-width: 1320px; margin: 0 auto; padding: 20px 16px 40px; }
     .hero {
-      background: linear-gradient(135deg, rgba(51, 74, 103, 0.96), rgba(71, 94, 124, 0.94));
-      color: #f8f1e5;
-      padding: 24px;
-      border-radius: 24px;
-      box-shadow: var(--shadow);
-      overflow: hidden;
       position: relative;
+      overflow: hidden;
+      padding: 22px;
+      border-radius: 28px;
+      background: linear-gradient(135deg, rgba(51, 77, 105, 0.98), rgba(77, 98, 128, 0.96));
+      color: #f7f0e6;
+      box-shadow: var(--shadow);
     }
     .hero::after {
       content: "";
       position: absolute;
-      right: -80px;
-      bottom: -80px;
-      width: 260px;
-      height: 260px;
-      background: radial-gradient(circle, rgba(255,255,255,0.18), transparent 60%);
+      right: -72px;
+      bottom: -72px;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.18), transparent 62%);
+      pointer-events: none;
     }
-    .hero-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 18px;
-      align-items: start;
+    .hero-top { display: flex; justify-content: space-between; gap: 18px; align-items: flex-start; }
+    .hero h1 { margin: 0; font-size: clamp(1.9rem, 4vw, 3.1rem); line-height: 1.06; }
+    .hero p { margin: 10px 0 0; max-width: 820px; color: rgba(247,240,230,0.84); line-height: 1.62; }
+    .hero-meta { font-size: 0.86rem; color: rgba(247,240,230,0.72); text-align: right; }
+    .badge-row, .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .badge, .chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 11px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.08); color: #fff6e8; font-size: 0.82rem;
     }
-    .hero h1 { margin: 0; font-size: clamp(2.1rem, 4.5vw, 3.4rem); }
-    .hero p { margin: 10px 0 0; max-width: 760px; line-height: 1.6; color: rgba(248,241,229,0.84); }
-    .hero-meta { text-align: right; font-size: 0.9rem; color: rgba(248,241,229,0.78); }
-    .controls {
-      margin-top: 18px;
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    select, button {
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.24);
-      background: rgba(255,255,255,0.08);
-      color: #fff9ef;
-      padding: 10px 14px;
-      font: inherit;
+    .chip {
+      border-color: var(--line);
+      background: #f7eddd;
+      color: var(--muted);
       cursor: pointer;
     }
-    select { min-width: 300px; }
-    button:hover, select:hover { background: rgba(255,255,255,0.14); }
-    .mobile-strip {
-      display: none;
-      margin-top: 14px;
-      gap: 8px;
-      flex-wrap: wrap;
+    .chip.active {
+      background: rgba(139, 52, 40, 0.1);
+      color: var(--accent);
+      border-color: rgba(139, 52, 40, 0.35);
     }
-    .content {
-      margin-top: 18px;
-      display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      gap: 18px;
-    }
-    .col { display: grid; gap: 18px; align-content: start; }
-    .card {
-      background: var(--paper);
+    .hero-bottom { margin-top: 16px; display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 14px; }
+    .panel {
+      background: var(--panel);
       border: 1px solid var(--line);
-      border-radius: 22px;
+      border-radius: var(--radius-xl);
       box-shadow: var(--shadow);
       padding: 18px;
     }
-    .faculty-card { order: 1; }
-    .log-card { order: 2; }
-    .actions-card { order: 3; }
-    .metrics-card { order: 1; }
-    .ending-card { order: 2; }
-    .faculty {
-      position: relative;
-      overflow: hidden;
-      background: linear-gradient(180deg, rgba(255,252,246,0.96), rgba(250,242,228,0.98));
+    .panel h2, .panel h3, .title { margin: 0; color: var(--deep); }
+    .subtitle { margin: 6px 0 0; color: var(--muted); line-height: 1.58; }
+    .builder-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .field { display: grid; gap: 7px; }
+    .field.span-2 { grid-column: 1 / -1; }
+    .field label { font-size: 0.84rem; color: var(--muted); }
+    .field input, .field select, .field textarea, .primary-btn, .secondary-btn, .ghost-btn {
+      font: inherit;
     }
-    .faculty::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: 0;
-      height: 6px;
-      background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--deep));
-    }
-    .faculty-grid {
-      display: grid;
-      grid-template-columns: 118px 1fr;
-      gap: 18px;
-      align-items: center;
-    }
-    .avatar {
-      width: 118px;
-      height: 118px;
-      border-radius: 22px;
-      display: grid;
-      place-items: center;
-      color: #fff6ea;
-      background: linear-gradient(135deg, rgba(51,74,103,0.96), rgba(143,49,38,0.88));
-      font-size: 2.1rem;
-    }
-    .eyebrow {
-      display: inline-block;
-      border-radius: 999px;
-      background: #f5e6d0;
-      border: 1px solid #e1c79d;
-      color: var(--accent);
-      padding: 4px 10px;
-      font-size: 0.82rem;
-      margin-bottom: 8px;
-    }
-    .faculty h2, .panel-title { margin: 0; font-size: 1.25rem; color: var(--deep); }
-    .faculty p, .muted { margin: 6px 0 0; color: var(--muted); line-height: 1.6; }
-    .pill-row {
-      margin-top: 12px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      border-radius: 999px;
+    .field input, .field select, .field textarea {
+      width: 100%;
+      border-radius: 14px;
       border: 1px solid var(--line);
-      background: #f5ebda;
-      padding: 5px 10px;
-      font-size: 0.88rem;
-      color: var(--muted);
+      background: #fffdf8;
+      color: var(--ink);
+      padding: 10px 12px;
+      outline: none;
     }
-    .pill.good { color: var(--good); }
-    .pill.warn { color: var(--warn); }
-    .pill.bad { color: var(--bad); }
-    .hero-stats {
-      margin-top: 16px;
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 12px;
+    .field textarea { min-height: 120px; resize: vertical; line-height: 1.58; }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      border-color: rgba(139, 52, 40, 0.55);
+      box-shadow: 0 0 0 3px rgba(139, 52, 40, 0.1);
     }
-    .stat {
-      border-radius: 18px;
-      border: 1px solid var(--line);
-      background: #f8f0e3;
-      padding: 12px;
+    .primary-btn, .secondary-btn, .ghost-btn {
+      border-radius: 999px;
+      border: 1px solid transparent;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: transform 140ms ease, opacity 140ms ease, background 140ms ease;
     }
-    .stat .label { font-size: 0.82rem; color: var(--muted); }
-    .stat .value { margin-top: 6px; font-size: 1.6rem; color: var(--deep); }
-    .note {
-      margin-top: 12px;
-      border-radius: 16px;
+    .primary-btn:hover, .secondary-btn:hover, .ghost-btn:hover { transform: translateY(-1px); }
+    .primary-btn {
+      background: linear-gradient(135deg, var(--accent), #a14935);
+      color: #fff7ea;
+      box-shadow: 0 10px 24px rgba(139, 52, 40, 0.18);
+    }
+    .secondary-btn {
+      background: #f5ead8;
+      border-color: var(--line);
+      color: var(--ink);
+    }
+    .ghost-btn {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.16);
+      color: #fff7ea;
+    }
+    .launch-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .hint-box, .note-box, .ending-box, .status-box {
+      border-radius: var(--radius-lg);
       border: 1px solid var(--line);
       background: #f8efe1;
       padding: 12px 14px;
+      line-height: 1.62;
       color: var(--muted);
     }
-    .section-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: end;
-      margin-bottom: 12px;
+    .status-box strong, .ending-box strong { color: var(--deep); }
+    .workspace { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 16px; margin-top: 16px; }
+    .left-col, .right-col { display: grid; gap: 16px; align-content: start; }
+    .identity-card {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(180deg, rgba(255,252,246,0.98), rgba(250,242,228,0.98));
     }
-    .section-head p { margin: 4px 0 0; color: var(--muted); font-size: 0.9rem; }
-    .actions {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
+    .identity-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--deep));
     }
-    .action {
-      text-align: left;
-      border-radius: 18px;
-      border: 1px solid #d0bb98;
-      background: linear-gradient(180deg, rgba(255,252,247,0.98), rgba(247,237,217,0.98));
-      color: var(--ink);
-      padding: 14px;
-      min-height: 144px;
-      cursor: pointer;
+    .identity-grid { display: grid; grid-template-columns: 108px 1fr; gap: 16px; align-items: center; }
+    .avatar-tile {
+      width: 108px; height: 108px; border-radius: 24px;
+      background: linear-gradient(135deg, rgba(51, 77, 105, 0.98), rgba(139, 52, 40, 0.9));
+      color: #fff7ea; display: grid; place-items: center; font-size: 1.95rem;
+      box-shadow: var(--shadow-soft);
     }
-    .action:hover { transform: translateY(-2px); }
-    .action[disabled] { opacity: 0.48; cursor: not-allowed; transform: none; }
-    .action-name { font-size: 1.05rem; color: var(--deep); font-weight: 700; margin-bottom: 6px; }
-    .action-desc { color: var(--muted); font-size: 0.92rem; line-height: 1.55; min-height: 44px; }
-    .action-meta { margin-top: 10px; font-size: 0.78rem; color: var(--muted); line-height: 1.55; }
-    .metrics {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px; border-radius: 999px;
+      background: #f4e5cf; border: 1px solid #e0c29a; color: var(--accent); font-size: 0.8rem;
     }
-    .metric {
+    .pill-row { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+    .pill {
+      display: inline-flex; align-items: center; padding: 5px 10px; border-radius: 999px;
+      border: 1px solid var(--line); background: #f7eedf; color: var(--muted); font-size: 0.84rem;
+    }
+    .hero-stats, .metrics-grid { display: grid; gap: 12px; }
+    .hero-stats { margin-top: 16px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .stat-card, .metric-card {
       border-radius: 18px;
       border: 1px solid var(--line);
-      background: linear-gradient(180deg, #f8f2e8, #fffdf7);
-      padding: 14px;
+      background: linear-gradient(180deg, #fbf5eb, #fffdf8);
+      padding: 12px;
     }
-    .metric .label { font-size: 0.86rem; color: var(--muted); }
-    .metric .value { margin-top: 8px; font-size: 1.6rem; color: var(--deep); }
-    .bar { margin-top: 8px; height: 8px; background: #e6d9c0; border-radius: 999px; overflow: hidden; }
-    .bar > span { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
-    .log {
-      display: grid;
-      gap: 14px;
-    }
+    .stat-card .label, .metric-card .label { color: var(--muted); font-size: 0.82rem; }
+    .stat-card .value, .metric-card .value { margin-top: 6px; color: var(--deep); font-size: 1.5rem; }
+    .metric-card .value { font-size: 1.15rem; }
+    .bar { margin-top: 8px; height: 8px; border-radius: 999px; background: #e9dcc5; overflow: hidden; }
+    .bar span { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+    .section-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-end; margin-bottom: 12px; }
+    .section-head p { margin: 4px 0 0; font-size: 0.88rem; color: var(--muted); }
     .story-stage {
-      border-radius: 20px;
-      border: 1px solid #d8c3a3;
-      background: linear-gradient(180deg, #fffdf7, #f8efe0);
-      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid #dbc6a9;
+      background: linear-gradient(180deg, #fffdf8, #f8eedf);
+      padding: 14px;
+      display: grid; gap: 10px;
     }
-    .story-kicker {
-      font-size: 0.8rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--accent);
-    }
-    .story-current {
-      margin-top: 10px;
-      display: grid;
-      gap: 10px;
-    }
+    .story-kicker { color: var(--accent); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; }
     .story-bubble {
       border-radius: 16px 16px 16px 6px;
-      border: 1px solid #dec7a2;
-      background: rgba(255, 250, 241, 0.98);
+      border: 1px solid #dfc8a6;
+      background: rgba(255,251,244,0.98);
       padding: 12px 14px;
-      line-height: 1.7;
-      font-size: 0.96rem;
-      box-shadow: 0 8px 20px rgba(51, 74, 103, 0.06);
+      line-height: 1.68;
+      font-size: 0.95rem;
+      box-shadow: var(--shadow-soft);
     }
-    .story-bubble.latest {
-      border-color: rgba(143, 49, 38, 0.3);
-      background: linear-gradient(180deg, rgba(255,249,239,0.98), rgba(250,238,219,0.98));
+    .story-bubble.latest { border-color: rgba(139, 52, 40, 0.32); }
+    .caption { color: var(--muted); font-size: 0.86rem; line-height: 1.58; }
+    .actions-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .action-btn {
+      text-align: left;
+      border-radius: 18px;
+      border: 1px solid #d1bc9a;
+      background: linear-gradient(180deg, rgba(255,252,248,0.98), rgba(247,236,216,0.98));
+      color: var(--ink);
+      padding: 14px;
+      min-height: 146px;
+      cursor: pointer;
     }
-    .story-caption {
-      color: var(--muted);
-      font-size: 0.88rem;
-      line-height: 1.6;
-    }
+    .action-btn[disabled] { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .action-title { font-size: 1rem; color: var(--deep); font-weight: 700; }
+    .action-desc { margin-top: 7px; color: var(--muted); min-height: 46px; line-height: 1.55; font-size: 0.9rem; }
+    .action-meta { margin-top: 9px; font-size: 0.78rem; color: var(--muted); line-height: 1.55; }
     .history-wrap {
       border-radius: 18px;
       border: 1px dashed var(--line);
@@ -272,203 +228,51 @@
       overflow: hidden;
     }
     .history-wrap summary {
-      list-style: none;
-      cursor: pointer;
-      padding: 12px 14px;
-      color: var(--deep);
-      font-weight: 700;
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      align-items: center;
+      list-style: none; cursor: pointer; padding: 12px 14px;
+      display: flex; justify-content: space-between; align-items: center; gap: 10px;
+      color: var(--deep); font-weight: 700;
     }
     .history-wrap summary::-webkit-details-marker { display: none; }
-    .history-wrap[open] summary {
-      border-bottom: 1px solid #eadcc5;
-      background: #faf3e7;
+    .history-wrap[open] summary { background: #faf3e7; border-bottom: 1px solid #eadcc5; }
+    .history-log { max-height: 320px; overflow-y: auto; padding: 12px 14px 14px; display: grid; gap: 10px; }
+    .log-entry { border-left: 3px solid rgba(139, 52, 40, 0.28); padding-left: 10px; }
+    .log-time { font-size: 0.76rem; color: var(--muted); margin-bottom: 3px; }
+    .log-text { line-height: 1.6; font-size: 0.9rem; }
+    .empty { color: var(--muted); font-size: 0.88rem; }
+    .warning { color: var(--warn); }
+    .hidden { display: none !important; }
+    @media (max-width: 1080px) {
+      .hero-bottom, .workspace { grid-template-columns: 1fr; }
     }
-    .history-label {
-      font-size: 0.84rem;
-      font-weight: 400;
-      color: var(--muted);
-    }
-    .history-log {
-      max-height: 320px;
-      overflow-y: auto;
-      padding: 12px 14px 14px;
-      display: grid;
-      gap: 10px;
-    }
-    .log-entry {
-      border-left: 3px solid rgba(143, 49, 38, 0.28);
-      padding-left: 10px;
-    }
-    .log-time {
-      font-size: 0.76rem;
-      color: var(--muted);
-      margin-bottom: 3px;
-    }
-    .log-text {
-      line-height: 1.62;
-      font-size: 0.9rem;
-      color: var(--ink);
-    }
-    .subtle {
-      display: inline-block;
-      font-size: 0.82rem;
-      color: var(--muted);
-      margin-top: 6px;
-    }
-    .outcome {
-      margin-top: 10px;
-      border-radius: 16px;
-      border: 1px solid var(--line);
-      background: #f8efe1;
-      padding: 14px;
-      display: none;
-      line-height: 1.65;
-    }
-    .outcome.active { display: block; }
-    @media (max-width: 980px) {
-      .content { grid-template-columns: 1fr; }
-      .hero-stats, .metrics, .actions { grid-template-columns: 1fr 1fr; }
-    }
-    @media (max-width: 700px) {
-      .shell { padding: 14px 12px 28px; }
-      .hero { padding: 14px 13px; border-radius: 18px; }
+    @media (max-width: 760px) {
+      .shell { padding: 12px 10px 28px; }
+      .hero { padding: 14px; border-radius: 18px; }
       .hero-top { flex-direction: column; }
       .hero-meta { display: none; }
-      .hero h1 { font-size: 1.62rem; line-height: 1.1; }
-      .hero p {
-        font-size: 0.84rem;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
-      .controls {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-        margin-top: 12px;
-      }
-      .controls select {
-        grid-column: 1 / -1;
-        min-width: 0;
-        width: 100%;
-        padding: 9px 12px;
-        font-size: 0.92rem;
-      }
-      .controls button {
-        width: 100%;
-        min-height: 42px;
-        padding: 9px 12px;
-        font-size: 0.9rem;
-      }
-      .mobile-strip { display: flex; margin-top: 10px; gap: 6px; }
-      .content { margin-top: 14px; gap: 14px; }
-      .col { gap: 14px; }
-      .card { padding: 12px; border-radius: 16px; }
-      .faculty-grid { grid-template-columns: 1fr; }
-      .log-card { order: 1; }
-      .faculty-card { order: 2; }
-      .actions-card { order: 3; }
-      .metrics-card { order: 3; }
-      .ending-card { order: 4; }
-      .avatar {
-        width: 62px;
-        height: 62px;
-        border-radius: 16px;
-        font-size: 1.2rem;
-      }
-      .pill-row { gap: 6px; }
-      .pill { font-size: 0.75rem; padding: 3px 7px; }
-      .hero-stats {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
-      }
-      .stat {
-        min-width: 0;
-        padding: 10px;
-        border-radius: 14px;
-      }
-      .stat .value {
-        font-size: 1.15rem;
-      }
-      .note {
-        font-size: 0.82rem;
-        line-height: 1.55;
-        padding: 10px 11px;
-        margin-top: 10px;
-      }
-      .section-head {
-        flex-direction: column;
-        align-items: start;
-        margin-bottom: 8px;
-        gap: 4px;
-      }
-      .section-head p { margin-top: 2px; font-size: 0.82rem; }
-      .panel-title { font-size: 1.05rem; }
-      .actions {
-        grid-template-columns: 1fr;
-        gap: 8px;
-      }
-      .action {
-        min-height: 0;
-        padding: 11px 10px;
-        border-radius: 15px;
-      }
-      .action-name { font-size: 0.95rem; margin-bottom: 4px; }
-      .action-desc {
-        min-height: 0;
-        font-size: 0.82rem;
-        line-height: 1.45;
-      }
-      .action-meta { margin-top: 6px; font-size: 0.73rem; line-height: 1.45; }
-      .metrics {
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-      }
-      .metric {
-        padding: 10px;
-        border-radius: 14px;
-      }
-      .metric .label { font-size: 0.78rem; }
-      .metric .value { font-size: 1.12rem; margin-top: 5px; }
-      .story-stage { padding: 12px; border-radius: 16px; }
-      .story-kicker { font-size: 0.72rem; }
-      .story-bubble {
-        font-size: 0.86rem;
-        padding: 10px 11px;
-        line-height: 1.58;
-      }
-      .story-caption {
-        font-size: 0.78rem;
-        line-height: 1.5;
-      }
-      .history-wrap summary {
-        padding: 10px 11px;
-        font-size: 0.84rem;
-      }
-      .history-log {
-        max-height: 180px;
-        padding: 9px 11px 11px;
-      }
-      .log-text { font-size: 0.8rem; line-height: 1.5; }
-      .outcome { padding: 11px; font-size: 0.84rem; line-height: 1.56; }
-    }
-    @media (max-width: 420px) {
-      .shell { padding: 10px 10px 22px; }
-      .hero { padding: 12px 11px; }
-      .hero h1 { font-size: 1.42rem; }
-      .eyebrow { font-size: 0.72rem; padding: 3px 8px; }
-      .mobile-strip { gap: 5px; }
-      .pill { font-size: 0.7rem; }
-      .card { padding: 10px; }
-      .hero-stats, .metrics { grid-template-columns: 1fr 1fr; gap: 7px; }
-      .stat, .metric { padding: 9px; }
-      .story-bubble { font-size: 0.82rem; }
+      .hero p { font-size: 0.84rem; }
+      .panel { padding: 12px; border-radius: 16px; }
+      .builder-grid { grid-template-columns: 1fr; gap: 10px; }
+      .field.span-2 { grid-column: auto; }
+      .identity-grid { grid-template-columns: 1fr; }
+      .avatar-tile { width: 62px; height: 62px; border-radius: 16px; font-size: 1.2rem; }
+      .hero-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .stat-card, .metric-card { padding: 10px; border-radius: 14px; }
+      .stat-card .value { font-size: 1.08rem; }
+      .workspace, .left-col, .right-col { gap: 12px; }
+      .actions-grid { grid-template-columns: 1fr; gap: 8px; }
+      .action-btn { min-height: 0; padding: 11px 10px; border-radius: 14px; }
+      .action-title { font-size: 0.92rem; }
+      .action-desc { min-height: 0; font-size: 0.82rem; }
+      .action-meta { font-size: 0.72rem; }
+      .metrics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .story-stage { padding: 12px; }
+      .story-bubble { font-size: 0.85rem; padding: 10px 11px; }
+      .caption, .subtitle, .hint-box, .note-box, .status-box, .ending-box { font-size: 0.8rem; }
+      .history-log { max-height: 180px; padding: 10px 11px 11px; }
+      .section-head { flex-direction: column; align-items: flex-start; margin-bottom: 8px; }
+      .section-head p { margin-top: 2px; font-size: 0.8rem; }
+      .launch-row { flex-direction: column; }
+      .launch-row .primary-btn, .launch-row .secondary-btn { width: 100%; }
     }
   </style>
 </head>
@@ -477,863 +281,1011 @@
     <section class="hero">
       <div class="hero-top">
         <div>
-          <div class="eyebrow">Anthology Mode / 多主玩法合集</div>
-          <h1>剧情模拟器剧场</h1>
-          <p>每个玩法都用自己的资源、动作、事件和结局说话。这里不是“同一套数值换标题”，而是一组彼此并存、各有脾气、适合手机连续游玩的互动故事。</p>
+          <div class="badge-row">
+            <span class="badge">StoryLab 2.0</span>
+            <span class="badge">预设 / 自定义 并存</span>
+            <span class="badge">固定 / 动态 双引擎</span>
+          </div>
+          <h1>多玩法剧情模拟工作台</h1>
+          <p>这版把模拟器拆成两个维度：背景来源和交互引擎。你既可以继续测试系统预设世界观，也可以直接塞一段自己的世界设定，再选择是跑固定剧情模板，还是交给统一 prompt 去动态续写。</p>
         </div>
         <div class="hero-meta">
-          多玩法并存
-          <br>
-          每条都有独立节奏
+          <div>支持 iframe 内嵌 / 外部页面直开</div>
+          <div id="heroMeta">等待启动</div>
         </div>
       </div>
-      <div class="controls">
-        <select id="scenario-select"></select>
-        <button id="start-btn">进入玩法</button>
-        <button id="reset-btn">重置本轮</button>
-      </div>
-      <div class="mobile-strip">
-        <span class="pill" id="mobile-genre">玩法：未启动</span>
-        <span class="pill warn" id="mobile-status">空闲</span>
-        <span class="pill" id="mobile-turn">未开始</span>
+      <div class="hero-bottom">
+        <section class="panel">
+          <div class="section-head">
+            <div>
+              <h2>一、背景来源</h2>
+              <p>系统预设适合直接体验成熟玩法；用户自定义适合快速造新世界。</p>
+            </div>
+          </div>
+          <div class="chip-row" id="sourceChips"></div>
+          <div class="builder-grid" style="margin-top: 14px;">
+            <div class="field span-2" id="systemScenarioField">
+              <label for="systemScenario">系统预设背景</label>
+              <select id="systemScenario"></select>
+            </div>
+            <div class="field">
+              <label for="customTitle">自定义标题</label>
+              <input id="customTitle" placeholder="例如：北漂玄学创业翻盘录">
+            </div>
+            <div class="field">
+              <label for="customGenre">自定义题材</label>
+              <input id="customGenre" placeholder="例如：都市逆袭 / 校园群像 / 悬疑博弈">
+            </div>
+            <div class="field span-2" id="customBackgroundField">
+              <label for="customBackground">用户自定义背景</label>
+              <textarea id="customBackground" placeholder="输入一段背景设定，说明主角、处境、世界规则、冲突核心和你想要的体验。"></textarea>
+            </div>
+          </div>
+          <div id="templateArea" class="hidden" style="margin-top: 12px;">
+            <div class="section-head" style="margin-bottom: 8px;">
+              <div>
+                <h3>参考底稿</h3>
+                <p>点一下就会把示例背景带进输入框，方便你在此基础上改写。</p>
+              </div>
+            </div>
+            <div class="chip-row" id="templateChips"></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="section-head">
+            <div>
+              <h2>二、交互引擎</h2>
+              <p>固定模式走可控模板；动态模式会调用统一故事续写 prompt，且支持风格配置。</p>
+            </div>
+          </div>
+          <div class="chip-row" id="engineChips"></div>
+          <div class="builder-grid" style="margin-top: 14px;">
+            <div class="field">
+              <label for="languageSelect">语言</label>
+              <select id="languageSelect">
+                <option value="zh-CN">中文</option>
+                <option value="en-US">English</option>
+                <option value="ja-JP">日本語</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="toneSelect">语气</label>
+              <select id="toneSelect">
+                <option>戏剧张力强</option>
+                <option>克制冷静</option>
+                <option>黑色幽默</option>
+                <option>热血爽文</option>
+                <option>悬疑压迫</option>
+                <option>治愈慢热</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="voiceSelect">叙述视角</label>
+              <select id="voiceSelect">
+                <option>第三人称近景</option>
+                <option>第一人称沉浸</option>
+                <option>旁白纪录片</option>
+                <option>冷面观察者</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="styleExtra">额外风格要求</label>
+              <input id="styleExtra" placeholder="例如：更像都市传说、更贴近恋综剪辑、更有命运感">
+            </div>
+          </div>
+          <div class="launch-row">
+            <button class="primary-btn" id="startBtn">启动模拟器</button>
+            <button class="secondary-btn" id="restartBtn">重置当前局</button>
+            <button class="ghost-btn" id="queryBtn">带着 URL 参数直开当前预设</button>
+          </div>
+          <div class="hint-box" id="builderHint" style="margin-top: 12px;">当前尚未开始。启动后，右侧会进入故事推进区。</div>
+        </section>
       </div>
     </section>
 
-    <section class="content">
-      <div class="col">
-        <article class="card faculty faculty-card">
-          <div class="faculty-grid">
-            <div class="avatar" id="avatar">剧</div>
+    <section class="workspace">
+      <div class="left-col">
+        <section class="panel identity-card">
+          <div class="identity-grid">
+            <div class="avatar-tile" id="avatarTile">SL</div>
             <div>
-              <div class="eyebrow" id="genre-tag">未启动</div>
-              <h2 id="scenario-title">请选择玩法</h2>
-              <p id="scenario-desc">先进入一个玩法。不同玩法会切换核心资源、动作、事件和结局。</p>
-              <div class="pill-row">
-                <span class="pill" id="job-title">身份：待定</span>
-                <span class="pill" id="institution">机构：未加载</span>
-                <span class="pill warn" id="run-status">状态：空闲</span>
-              </div>
+              <span class="eyebrow" id="modeBadge">等待配置</span>
+              <h2 id="identityTitle" style="margin-top: 10px;">尚未启动模拟器</h2>
+              <p class="subtitle" id="identitySubtitle">先选背景来源和交互引擎，再开始测试。</p>
+              <div class="pill-row" id="identityPills"></div>
             </div>
           </div>
-          <div class="hero-stats" id="hero-stats"></div>
-          <div class="note" id="homepage-blurb">未加载场景说明。</div>
-        </article>
+          <div class="hero-stats" id="heroStats"></div>
+          <div class="note-box" id="openingNote">开局说明会显示在这里。</div>
+        </section>
 
-        <article class="card log-card">
+        <section class="panel">
           <div class="section-head">
             <div>
-              <h3 class="panel-title">当前剧情</h3>
-              <p>先读到眼前这一步，再决定下一次动作。</p>
+              <h3>剧情推进</h3>
+              <p>每次点击动作后，这里都会追加一段新的推进，而不是只改属性。</p>
             </div>
-            <div class="subtle" id="story-progress">剧情待开始</div>
           </div>
-          <div class="log">
-            <div class="story-stage">
-              <div class="story-kicker">Now Playing</div>
-              <div class="story-current" id="story-current">
-                <div class="story-bubble latest">等待进入玩法。</div>
-              </div>
-              <div class="story-caption" id="story-caption">进入玩法后，这里会优先显示最近推进的剧情片段。</div>
+          <div class="story-stage">
+            <div class="story-kicker" id="storyKicker">STORY FEED</div>
+            <div class="story-bubble latest" id="latestStory">等待你启动第一局。</div>
+            <div class="caption" id="storyHint">固定模式会走结构化模板，动态模式会优先请求 `/api/story/continue`，失败时自动走本地续写。</div>
+          </div>
+          <details class="history-wrap" style="margin-top: 12px;">
+            <summary>
+              <span>剧情历史</span>
+              <span id="historyLabel">0 条记录</span>
+            </summary>
+            <div class="history-log" id="historyLog">
+              <div class="empty">还没有历史记录。</div>
             </div>
-            <details class="history-wrap">
-              <summary>
-                <span>完整过程</span>
-                <span class="history-label" id="history-count">0 条记录</span>
-              </summary>
-              <div class="history-log" id="log"></div>
-            </details>
-          </div>
-          <div class="outcome" id="outcome"></div>
-        </article>
+          </details>
+        </section>
 
-        <article class="card actions-card">
+        <section class="panel">
           <div class="section-head">
             <div>
-              <h3 class="panel-title">下一步怎么做</h3>
-              <p>动作会随玩法完全变化，而不是统一的“推进主线”。</p>
+              <h3>动作选项</h3>
+              <p id="actionSubtitle">启动后会根据当前玩法与模式生成不同的选择集。</p>
             </div>
-            <div class="muted" id="turn-meta">未开始</div>
           </div>
-          <div class="actions" id="actions"></div>
-        </article>
+          <div class="actions-grid" id="actionsGrid"></div>
+        </section>
       </div>
 
-      <div class="col">
-        <article class="card metrics-card">
+      <div class="right-col">
+        <section class="panel">
           <div class="section-head">
             <div>
-              <h3 class="panel-title">状态面板</h3>
-              <p>这里只显示当前玩法真正重要的资源。</p>
+              <h3>状态面板</h3>
+              <p>左侧显示主指标，右侧显示扩展指标和系统提示。</p>
             </div>
           </div>
-          <div class="metrics" id="metrics"></div>
-        </article>
+          <div class="metrics-grid" id="metricsGrid"></div>
+          <div class="status-box" id="statusBox" style="margin-top: 12px;">还未开始，没有可追踪的回合状态。</div>
+        </section>
 
-        <article class="card ending-card">
+        <section class="panel">
           <div class="section-head">
             <div>
-              <h3 class="panel-title">结局预告</h3>
-              <p>每个玩法都有自己的上岸方式，也有自己的崩法。</p>
+              <h3>结局与阶段</h3>
+              <p>固定模式与动态模式都会在接近终局时给出收束提示。</p>
             </div>
           </div>
-          <div class="muted" id="ending-hint">进入玩法后会根据当前状态提示你正在靠近哪种结局。</div>
-        </article>
+          <div class="ending-box" id="endingBox">当前未进入结局线。</div>
+        </section>
       </div>
     </section>
   </div>
 
   <script src="./generated_scenarios.js"></script>
   <script>
-    const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+    (function () {
+      const sourceModes = [
+        { id: 'system', name: '系统预设背景', desc: '用现成世界观快速开局' },
+        { id: 'custom', name: '用户自定义背景', desc: '手动输入一段背景设定' },
+      ];
+      const engineModes = [
+        { id: 'fixed', name: '固定剧情 / 固定选项', desc: '结构化模板，便于调玩法' },
+        { id: 'dynamic', name: '统一 Prompt 动态续写', desc: '按每一步交互继续生成后续剧情' },
+      ];
+      const templateSeeds = [
+        {
+          id: 'riches',
+          title: '无厘头逆袭暴富',
+          genre: '狗血爽文',
+          background: '你是一个在一线城市苦熬多年的社畜，今天刚被老板用离谱理由开除，回家却发现自己多年前的旧物里藏着一张能撬动巨额财富的黑卡。你要在社恐、自尊、前任搅局和一连串荒诞机会里决定如何翻盘。',
+        },
+        {
+          id: 'academy',
+          title: '青椒生存线',
+          genre: '高校职业',
+          background: '你是一名刚入职不久的青年教师，论文、基金、学生、家庭和行政会议一起压上来。学院表面温和，实际上暗流涌动。你需要在保住教职的同时，不让自己先崩掉。',
+        },
+        {
+          id: 'romance_show',
+          title: '狗血恋综',
+          genre: '恋综群像',
+          background: '你误入一档剪辑极其阴险的恋爱综艺。每次发言都可能被当成修罗场导火索，而节目组明显在故意放大误会。你既想保住体面，也不想错过突然出现的真心与名利。',
+        },
+        {
+          id: 'apocalypse',
+          title: '末日存续',
+          genre: '灾后生存',
+          background: '城市系统在一夜之间停摆，物资、秩序和信任都开始崩塌。你所在的临时据点里有人想建规则，有人想夺权，而你掌握着一条可能改变局势的线索。',
+        },
+        {
+          id: 'time_shift',
+          title: '穿越爽文',
+          genre: '时空逆转',
+          background: '你带着未来碎片化记忆穿回关键节点，知道几次灾难和几次风口的方向，却不知道每次出手会不会改坏更多人的命运。故事要在爽感与代价之间反复拉扯。',
+        },
+        {
+          id: 'city_mystery',
+          title: '都市悬疑博弈',
+          genre: '悬疑压迫',
+          background: '你被卷进一场关于身份、资本和隐秘记录的调查。每当你以为掌握了真相，局面就会再翻一层。你可以正面查，也可以借势布局，但每一步都会留下痕迹。',
+        },
+      ];
 
-    const behaviors = {
-      dogblood: {
-        actionPool(turn) {
-          const pools = [
-            [
-              { id: "sign_blackcard", name: "当场用口红签黑卡", desc: "不管是不是诈骗，先把这离谱命运接住。", cost: {}, effect: { wealth: 6, drama: 10, clue: 1, aura: 4 }, flavor: "你掏出口红，在黑卡背面签下名字，字迹比辞职信还稳。" },
-              { id: "hide_card", name: "把黑卡塞进内衣暗袋", desc: "先保住隐私，再决定要不要暴富。", cost: {}, effect: { clue: 2, aura: 2, dignity: 4 }, flavor: "你先把黑卡藏好，毕竟在北京街头最不能丢的是隐私和最后一点体面。" },
-              { id: "scan_card", name: "拿平板扫描火漆暗纹", desc: "社恐不问人，先自己研究。", cost: {}, effect: { clue: 3, drama: 4, aura: 1 }, flavor: "你在路边蹲着像鉴宝节目特邀嘉宾，开始扫描那枚火漆纹样。" },
-              { id: "call_ex", name: "打给前任质问是不是恶作剧", desc: "顺便看看烂人还能贡献多少剧情值。", cost: {}, effect: { drama: 12, nemesis: 8, dignity: -4, clue: 1 }, flavor: "电话一接通，对面背景音里居然传来你最讨厌的那种矫情爵士乐。" }
-            ],
-            [
-              { id: "follow_bodyguard", name: "跟着黑西装上神秘商务车", desc: "上车可能被骗，不上车可能错过十位数。", cost: {}, effect: { wealth: 10, drama: 9, aura: 5 }, flavor: "黑西装替你拉开车门，语气像在请千亿继承人回府。" },
-              { id: "trade_moodboard", name: "拿私人 moodboard 当筹码谈判", desc: "美学审美终于有机会变现。", cost: {}, effect: { wealth: 8, clue: 2, aura: 6 }, flavor: "你把压箱底的 moodboard 翻出来，对方看完后眼睛都亮了。" },
-              { id: "send_encrypted_post", name: "匿名发帖曝光黑卡事件", desc: "让互联网替你试毒。", cost: {}, effect: { drama: 14, wealth: 4, dignity: -2, nemesis: 4 }, flavor: "你开小号发帖，标题写得像都市怪谈，五分钟后热度就炸了。" },
-              { id: "sell_mystery_box", name: "把收纳箱伪装成神秘盲盒拍卖", desc: "穷到极致的时候，创意就是流动资产。", cost: {}, effect: { wealth: 7, drama: 7, aura: 3 }, flavor: "你把出租屋遗物重新命名成“北漂命运限定箱”，居然真有人抢。" }
-            ],
-            [
-              { id: "enter_gala", name: "冒充艺术顾问混进慈善晚宴", desc: "反正你审美比场内一半人都真。", cost: {}, effect: { wealth: 12, aura: 8, drama: 6 }, flavor: "你穿着旧风衣混进晚宴，靠美学判断一路把自己送到主桌附近。" },
-              { id: "save_cat", name: "先去救卡在喷泉边的布偶猫", desc: "你不想发财之前先当冷血大人。", cost: {}, effect: { clue: 3, dignity: 6, drama: 6 }, flavor: "你刚弯腰抱起那只布偶猫，远处就有人尖叫“那是董事长的猫”。" },
-              { id: "decode_usb", name: "破解黑卡附带的加密 U 盘", desc: "社恐的正确打开方式：和设备说话。", cost: {}, effect: { clue: 4, wealth: 6, nemesis: 3 }, flavor: "U 盘弹出的第一个文件夹名字叫“给下一个倒霉蛋”。" },
-              { id: "fake_quit_video", name: "拍离职复仇短视频", desc: "把惨事剪成爆款，赚第一波狗血流量。", cost: {}, effect: { wealth: 9, drama: 12, aura: 2 }, flavor: "你把今天被开除的全过程配上古典音乐，效果比预想还炸。" }
-            ],
-            [
-              { id: "adopt_master", name: "认神秘老头当便宜师父", desc: "他说自己懂风水、股权和相面。", cost: {}, effect: { clue: 3, aura: 7, drama: 8 }, flavor: "老头一边嗑瓜子一边说：'你天生就该拿前任祭天。'" },
-              { id: "sign_secret_nda", name: "签下离谱保密协议", desc: "条款写着不得拒绝意外暴富。", cost: {}, effect: { wealth: 10, clue: 2, dignity: -1 }, flavor: "保密协议第 8 条明写：若天降遗产，乙方不得表现得像没见过世面。" },
-              { id: "auction_aesthetics", name: "靠审美给富豪改豪宅配色", desc: "既然他们有钱，那就让他们花得体面一点。", cost: {}, effect: { wealth: 14, aura: 6, drama: 4 }, flavor: "你随手改了一面墙，对方当场多给了六位数设计费。" },
-              { id: "dig_boss_secret", name: "顺手挖前老板的惊天秘密", desc: "谁让他先说你呼吸影响风水。", cost: {}, effect: { nemesis: -8, wealth: 8, drama: 10 }, flavor: "你发现老板公司账上最神秘的支出，是每月固定给一位“玄学顾问”的红包。" }
-            ],
-            [
-              { id: "board_seaplane", name: "坐水上飞机去签继承协议", desc: "离谱程度越高，越像真的。", cost: {}, effect: { wealth: 16, aura: 8, drama: 7 }, flavor: "你还没从水上飞机缓过神，就被请进一个铺满天鹅绒的会议室。" },
-              { id: "launch_brand", name: "把个人审美做成爆款品牌", desc: "让你坚持的细节洁癖直接变现。", cost: {}, effect: { wealth: 18, aura: 6, clue: 2 }, flavor: "你最讲究的配色和包装突然成了全网模仿模板。" },
-              { id: "buy_out_enemy", name: "反手买下前老板最爱的工位", desc: "不一定最赚钱，但一定最爽。", cost: {}, effect: { wealth: 8, nemesis: -16, drama: 12, dignity: 8 }, flavor: "你签字买下整层办公区时，前老板还在问是不是走错了门。" },
-              { id: "silent_takeover", name: "不露面完成隐秘控股", desc: "社恐版暴富，不吵不闹直接持股。", cost: {}, effect: { wealth: 15, clue: 3, dignity: 6 }, flavor: "你没有在台前讲话，只在协议底部留下了最安静的一笔。 " }
-            ]
-          ];
-          const bucket = pools[Math.min(pools.length - 1, Math.floor((turn - 1) / 4))];
-          return bucket;
-        },
-        passive(state) {
-          state.round_count += 1;
-          state.drama += 2;
-          state.nemesis += 1;
-          state.aura += 1;
-        },
-        actionLog(actionId, scenario, action) {
-          return action && action.flavor ? action.flavor : `执行动作：${scenario.actions.find((item) => item.id === actionId)?.name || actionId}`;
-        },
-        extra(actionId, state, rng, log) {
-          if (actionId === "save_cat" && rng() < 0.7) {
-            state.wealth += 10;
-            state.clue += 2;
-            log("猫主人递来一张烫金名片，说她欠你一个亿级人情。");
-          }
-          if (actionId === "send_encrypted_post" && rng() < 0.6) {
-            state.drama += 10;
-            state.wealth += 6;
-            log("帖子被顶成热搜，评论区居然有人认出那张黑卡属于海外财团内测。");
-          }
-          if (actionId === "auction_aesthetics" && rng() < 0.5) {
-            state.wealth += 12;
-            state.aura += 4;
-            log("富豪夫人看着你改的空间配色，直接把闺蜜群都拉来下单。");
-          }
-          if (actionId === "buy_out_enemy" && rng() < 0.55) {
-            state.nemesis = Math.max(0, state.nemesis - 12);
-            state.dignity += 6;
-            log("前老板被迫拿着访客卡站在门口，一时分不清谁影响谁风水。");
-          }
-        },
-        ending(outcome, state) {
-          if (state.wealth >= 130 && state.aura >= 70) {
-            return "结局：顶级财团继承人。你靠一张黑卡、一只董事长的猫和自己过分稳定的审美，接管了一整条奢侈品与生活方式产业链。彩蛋是，当年说你呼吸影响风水的老板，现在每天都要申请才能进你公司大堂。";
-          }
-          if (state.clue >= 12 && state.dignity >= 70) {
-            return "结局：隐秘控股女王。你没有在任何晚宴上高调亮相，却靠一连串加密协议和精准下注，悄悄吃下数家公司的决定权。彩蛋是，你最重视的隐私安全，最后被做成了全球爆款高端生活方式品牌。";
-          }
-          if (state.drama >= 110) {
-            return "结局：全网狗血顶流。你把自己最惨的一天剪成了互联网史上最离谱的逆袭连续剧，最后带着品牌、版权和代言费一起暴富。彩蛋是，前任试图蹭热度直播复合，被你的 AI 客服自动拉黑。";
-          }
-          return "结局：玄学暴富躺赢。你一路签协议、捡线索、躲前任、收黑卡，最后被命运管理局盖章认证为“最适合暴富的倒霉蛋”。彩蛋是，你当年被房东扔出来的收纳箱，如今摆在你豪宅玄关当艺术装置。";
-        },
-        hint(state) {
-          if (state.round_count <= 6) return "现在还是惨到离谱但开始冒金光的阶段，先尽量多攒线索和气场。";
-          if (state.clue >= 10) return "线索已经够多了，你正在接近“隐秘控股”或“财团继承”路线。";
-          if (state.drama >= 90) return "狗血浓度已经破表，再走两步就会直接冲进全网顶流路线。";
-          if (state.nemesis >= 50) return "前任老板的存在感太强了，说明你的复仇型暴富支线正在成熟。";
-          return "你还在狗血命运高速路上，接下来每个选项都可能把惨剧扭成提款机。";
-        }
-      },
-      qingjiao: {
-        passive(state) {
-          state.tenure_clock += 1;
-          state.energy -= 5;
-          state.sanity -= 3;
-          state.family -= 2;
-          state.admin += 3;
-          state.burnout += 4;
-        },
-        actionLog(id) {
-          return {
-            write_paper: "你把学生的初稿改成第六版，凌晨两点终于把图例统一。",
-            apply_grant: "你一边写“国际先进水平”，一边祈祷评审人不是去年那位。",
-            mentor_students: "组会上你说“先别焦虑”，说完自己先焦虑了。",
-            socialize: "饭桌上大家都在聊交叉、平台、方向，你只顾记谁能写推荐信。",
-            teach: "学生评教里有人夸你讲得清楚，也有人问为什么作业这么多。",
-            rest: "你决定今晚不改稿，哪怕邮箱里已经出现第三封“请尽快回复”。"
-          }[id];
-        },
-        extra(id, state, rng, log) {
-          if (id === "write_paper" && rng() < 0.35) { state.papers += 1; state.reputation += 4; log("返修意外过审，你在朋友圈只发了一个句号。"); }
-          if (id === "apply_grant") {
-            if (rng() < 0.28) { state.grants += 1; state.reputation += 8; state.admin -= 8; log("项目中了。院里老师突然想起你名字念对了。"); }
-            else { state.sanity -= 4; log("本子出门即归零，评语里写着“选题有待凝练”。"); }
-          }
-          if (id === "mentor_students" && rng() < 0.24) { state.students = Math.max(0, state.students - 1); state.sanity -= 5; log("有个学生说想去互联网，你点头表示理解，心里在算实验谁来做。"); }
-          if (id === "socialize" && rng() < 0.33) { state.grants += 1; log("饭局结束时，对方说以后可以一起报个联合项目。"); }
-        },
-        ending(outcome, state) {
-          if (outcome.type === "win") {
-            if (state.papers >= 8 && state.grants >= 3 && state.reputation >= 85) return "结局：学院海报人物。主页照片终于从像素风换成正式版，甚至开始有人来问你如何平衡科研与生活。";
-            return "结局：勉强上岸。你保住了教职，代价是对“下周轻松一点”这句话再也无法产生信任。";
-          }
-          if (state.sanity <= 0 || state.burnout >= 100) return "结局：心气熄火。你没有真的倒下，只是突然觉得所有邮件都不值得回。";
-          if (state.family <= 0) return "结局：KPI 保住了，家没保住。";
-          if (state.admin >= 100) return "结局：成为表哥表姐。你逐渐不再以论文数记年份，而是以会议纪要页数记人生。";
-          return "结局：非升即走。学院感谢你做出的贡献，并祝你在新的岗位上前程似锦。";
-        },
-        hint(state) {
-          if (state.papers >= 6 && state.grants >= 2 && state.reputation >= 70) return "你更接近“勉强上岸”或“学院海报人物”，接下来要保住心气和家庭值。";
-          if (state.admin >= 70) return "你正在快速靠近“成为表哥表姐”，行政压力已经开始吞掉时间。";
-          if (state.family <= 20) return "家庭值很危险，再继续硬扛会更接近“家没保住”。";
-          if (state.sanity <= 20 || state.burnout >= 80) return "你的状态正在向“心气熄火”滑落，最好先做人，再做青椒。";
-          return "你暂时还在台上，但天平已经开始倾斜。";
-        }
-      },
-      esports: {
-        passive(state) {
-          state.season_week += 1;
-          state.stamina -= 6;
-          state.public_pressure += 4;
-          state.meta_read -= 2;
-        },
-        actionLog(id) {
-          return {
-            scrim: "你把队伍按在训练室里复盘到半夜，所有人都开始对计时器产生敌意。",
-            vod_review: "投影里全是昨天犯过的错，你假装今天就会不一样。",
-            brand_ops: "运营说要拍点轻松内容，你知道评论区不会轻松。",
-            sports_rehab: "理疗师一边按手腕一边说，再不休息这个赛季就要交给止痛贴了。",
-            mental_reset: "你把训练室门关上，先让大家把火发出来，再谈下一场。",
-            big_match: "你把本周所有筹码都压在焦点战上，赢了封神，输了挨喷。"
-          }[id];
-        },
-        extra(id, state, rng, log) {
-          if (id === "big_match") {
-            if (rng() < 0.45) { state.wins += 2; state.fanbase += 10; log("焦点战打穿了，直播间刷屏速度终于像冠军队。"); }
-            else { state.public_pressure += 14; state.morale -= 8; log("输了，BP 和队员表情一起上了热搜。"); }
-          }
-          if (id === "scrim" && rng() < 0.26) { state.synergy += 8; log("几波团战配合终于像同一个队打出来的。"); }
-        },
-        ending(outcome, state) {
-          if (outcome.type === "win") return state.wins >= 14 ? "结局：冠军巡礼。你们终于从“节目效果”活成了“强队风格”。" : "结局：惊险季后赛。不是王朝，但足够让粉丝把头像换回来。";
-          if (state.public_pressure >= 100) return "结局：全网开会。你没输给版本，先输给了热搜。";
-          if (state.injuries >= 100) return "结局：病床轮换阵容。";
-          return "结局：赛季塌方。大家都说下个赛季会更好。";
-        },
-        hint(state) {
-          if (state.wins >= 10 && state.synergy >= 65) return "你正向冠军窗口靠近，但舆论和伤病还没放过你。";
-          if (state.public_pressure >= 70) return "现在最大的对手不是场上的队伍，是场外的话题榜。";
-          if (state.injuries >= 60) return "队员身体快撑不住了，再硬练会直接换来赛季报销。";
-          return "你还在争冠线上，但版本和情绪随时可能背刺你。";
-        }
-      },
-      startup: {
-        passive(state) {
-          state.month += 1;
-          state.runway -= 1;
-          state.health -= 4;
-          state.focus -= 3;
-          state.investor_heat += 3;
-        },
-        actionLog(id) {
-          return {
-            ship_feature: "产品又硬上线一个新功能，Slack 里已经有人开始发“先别合主干”。",
-            close_sales: "你亲自去见客户，把焦虑说成愿景，把愿景说成 roadmap。",
-            fundraise: "你今天讲的不是公司，是一个需要别人先相信的未来。",
-            pay_tech_debt: "终于停下来修系统，虽然每停一天都像在掉增长。",
-            team_reset: "你把大家拉进同一个会议室，先统一语言，再统一方向。",
-            sleep: "今晚你真的睡了，明天公司不一定更好，但你会。"
-          }[id];
-        },
-        extra(id, state, rng, log) {
-          if (id === "fundraise") {
-            if (rng() < 0.34) { state.cash += 22; state.runway += 2; log("投资人说可以继续聊，翻译过来就是还没被一票否掉。"); }
-            else { state.health -= 5; log("对方笑得很礼貌，回去后再也没回消息。"); }
-          }
-          if (id === "ship_feature" && rng() < 0.30) { state.users += 28; state.brand += 6; log("这次真的有用户买单了，不只是朋友帮忙转发。"); }
-        },
-        ending(outcome, state) {
-          if (outcome.type === "win") return state.users >= 320 ? "结局：跑出来了。增长曲线终于像故事里该有的样子。" : "结局：活下来了。还没赢，但已经不是随时会死的公司。";
-          if (state.cash <= 0 || state.runway <= 0) return "结局：跑道归零。你没输给愿景，输给了现金流。";
-          if (state.team <= 0) return "结局：团队散了。产品还在，组织没了。";
-          return "结局：创始人先倒。公司还没关，你先躺了。";
-        },
-        hint(state) {
-          if (state.cash < 30 || state.runway <= 2) return "现金流正在逼近喉咙，下一步最好别只是讲故事。";
-          if (state.tech_debt >= 60) return "技术债已经开始反噬增长，别再把爆炸叫迭代。";
-          if (state.users >= 220 && state.cash >= 90) return "你已经有点像一家公司了，接下来要防的是内部失速。";
-          return "你还在转型窗口里，任何一步都可能决定是讲新故事还是写复盘。";
-        }
-      },
-      film: {
-        passive(state) {
-          state.festival_deadline += 1;
-          state.sleep -= 5;
-          state.cast_mood -= 2;
-          state.weather_risk += 3;
-        },
-        actionLog(id) {
-          return {
-            shoot: "今天又在抢天光，整个剧组都在和太阳谈判。",
-            rewrite: "你深夜改剧本，试图让明天少吵两场。",
-            court_festival: "你开始给电影节写邮件，语气在自信和哀求之间寻找平衡。",
-            crew_day: "你给剧组做了一次真正的人类维护，艺术冲突暂时变成了普通抱怨。",
-            edit_lock: "剪辑室里的每一分钟，都像在重新定义片子的灵魂。",
-            sleep: "今晚先睡，不然明天看监视器时会把镜头都看成幻觉。"
-          }[id];
-        },
-        extra(id, state, rng, log) {
-          if (id === "shoot" && rng() < 0.28) { state.footage += 14; state.edit_quality += 4; log("突然拍到一条神镜头，大家都短暂相信一切值得。"); }
-          if (id === "court_festival" && rng() < 0.24) { state.buzz += 10; log("一个选片人回信了，虽然只有两行字，但够你撑两天。"); }
-        },
-        ending(outcome, state) {
-          if (outcome.type === "win") return state.buzz >= 60 ? "结局：影展惊喜。你们真的进了电影节，还不是最冷门的单元。" : "结局：按时交片。片子未必会火，但它至少完整存在了。";
-          if (state.budget <= 0) return "结局：预算先杀青。";
-          if (state.cast_mood <= 0 || state.crew_order <= 0) return "结局：剧组散场。片子还没完，人先散了。";
-          return "结局：剪辑室幽灵。你还在做片，但已经分不清哪一版才是终版。";
-        },
-        hint(state) {
-          if (state.footage >= 80 && state.edit_quality >= 55) return "你已经看见成片轮廓了，接下来最怕的是在最后一公里散架。";
-          if (state.cast_mood <= 20 || state.crew_order <= 20) return "剧组关系比预算更危险，下一步要先稳人。";
-          return "这还是一部电影，不是事故现场，但两者只隔着几次连续夜戏。";
-        }
-      },
-      rebuild: {
-        passive(state) {
-          state.week += 1;
-          state.fatigue += 5;
-          state.risk += 3;
-          state.supplies -= 6;
-        },
-        actionLog(id) {
-          return {
-            dispatch: "仓储、车辆、名单、临时点位全压在这一次调度上。",
-            repair: "你把有限的人力塞进最先必须恢复的节点，赌整个系统能喘一口气。",
-            briefing: "今天必须公开说清楚，不然不确定性会长得比谣言还快。",
-            recruit: "你把零散的好意组织成真正可执行的网络。",
-            rest: "让队伍停一下，不然系统先倒。",
-            field_visit: "报告里看不见的问题，只能在现场踩出来。"
-          }[id];
-        },
-        extra(id, state, rng, log) {
-          if (id === "field_visit" && rng() < 0.26) { state.trust += 8; state.risk -= 4; log("有人当场说“你们至少真的来了”，这比一份公文更有重量。"); }
-        },
-        ending(outcome, state) {
-          if (outcome.type === "win") return "结局：秩序重建。不是一切都恢复如初，而是大家终于重新相信系统还能工作。";
-          if (state.trust <= 0) return "结局：信任崩塌。物资没先断，人心先断。";
-          if (state.fatigue >= 100) return "结局：救援队先耗尽。";
-          return "结局：风险回潮。你修复了表面，没来得及稳住底盘。";
-        },
-        hint(state) {
-          if (state.trust < 25) return "现在最稀缺的资源不是物资，是公众相信信息的能力。";
-          if (state.supplies < 20) return "库存快见底了，再高的志愿热情也顶不住。";
-          return "你正在和时间赛跑，救援和重建不能再被当成两件事。";
-        }
-      },
-      campus: {
-        passive(state) {
-          state.semester += 1;
-          state.stamina -= 5;
-          state.controversy += 3;
-          state.resistance += 2;
-        },
-        actionLog(id) {
-          return {
-            townhall: "你把分歧搬到台面上，代价是它们会一起变大声。",
-            pilot: "真正推进试点，就意味着从抽象改革进入具体得罪人。",
-            negotiate: "你开始逐个沟通关键教师，改革的实质永远是人际工作。",
-            publish_data: "数据公开了，争论不会消失，但会被迫更专业。",
-            pause: "你先缓一缓节奏，让所有人从防御姿态里退半步。",
-            student_roundtable: "你把学生从被改革对象变成了改革参与者。"
-          }[id];
-        },
-        extra(id, state, rng, log) {
-          if (id === "pilot" && rng() < 0.30) { state.policy_progress += 10; state.student_feedback += 8; log("试点班级的反馈比预想好，反对者语气第一次慢下来。"); }
-          if (id === "publish_data" && rng() < 0.24) { state.support += 6; state.legitimacy += 6; log("那份一直被质疑的方案，终于第一次被人认真读了。"); }
-        },
-        ending(outcome, state) {
-          if (outcome.type === "win") return "结局：改革落地。不是所有人都满意，但大多数人愿意继续往前走。";
-          if (state.controversy >= 100) return "结局：争议吞掉改革。";
-          if (state.resistance >= 100) return "结局：制度性反扑。";
-          return "结局：改革中止。大家还是会说需要改革，只是不是现在。";
-        },
-        hint(state) {
-          if (state.support >= 60 && state.legitimacy >= 65) return "你已经接近让改革真正站住脚，但千万别在最后一步失去体力。";
-          if (state.controversy >= 70) return "现在最危险的不是方案本身，而是所有人都在只看情绪。";
-          return "改革还在可控区间，但任何一步过猛都会让阻力瞬间具体起来。";
-        }
-      },
-      generic: {
-        passive(state) { state.time += 1; },
-        actionLog(id, scenario) { return `执行动作：${scenario.actions.find((item) => item.id === id)?.name || id}`; },
-        extra() {},
-        ending(outcome) { return outcome.type === "win" ? "结局：成功达成目标。" : "结局：本轮未能稳定收束。"; },
-        hint() { return "这是一个实验场景，当前重点仍然放在上面的主玩法。"; }
+      const scenarioPack = window.SCENARIO_PACK || { scenarios: [] };
+      const scenarios = Array.isArray(scenarioPack.scenarios) ? scenarioPack.scenarios : [];
+      const featuredScenarios = scenarios.filter((scenario) => scenario && scenario.metadata && scenario.metadata.featured);
+      const allScenarios = featuredScenarios.length ? featuredScenarios : scenarios;
+      const params = new URLSearchParams(window.location.search);
+      const requestedScenarioId = params.get('scenario') || '';
+
+      const el = {
+        sourceChips: document.getElementById('sourceChips'),
+        engineChips: document.getElementById('engineChips'),
+        systemScenario: document.getElementById('systemScenario'),
+        systemScenarioField: document.getElementById('systemScenarioField'),
+        customTitle: document.getElementById('customTitle'),
+        customGenre: document.getElementById('customGenre'),
+        customBackground: document.getElementById('customBackground'),
+        customBackgroundField: document.getElementById('customBackgroundField'),
+        templateArea: document.getElementById('templateArea'),
+        templateChips: document.getElementById('templateChips'),
+        languageSelect: document.getElementById('languageSelect'),
+        toneSelect: document.getElementById('toneSelect'),
+        voiceSelect: document.getElementById('voiceSelect'),
+        styleExtra: document.getElementById('styleExtra'),
+        startBtn: document.getElementById('startBtn'),
+        restartBtn: document.getElementById('restartBtn'),
+        queryBtn: document.getElementById('queryBtn'),
+        builderHint: document.getElementById('builderHint'),
+        heroMeta: document.getElementById('heroMeta'),
+        avatarTile: document.getElementById('avatarTile'),
+        modeBadge: document.getElementById('modeBadge'),
+        identityTitle: document.getElementById('identityTitle'),
+        identitySubtitle: document.getElementById('identitySubtitle'),
+        identityPills: document.getElementById('identityPills'),
+        heroStats: document.getElementById('heroStats'),
+        openingNote: document.getElementById('openingNote'),
+        latestStory: document.getElementById('latestStory'),
+        storyHint: document.getElementById('storyHint'),
+        storyKicker: document.getElementById('storyKicker'),
+        historyLog: document.getElementById('historyLog'),
+        historyLabel: document.getElementById('historyLabel'),
+        actionsGrid: document.getElementById('actionsGrid'),
+        actionSubtitle: document.getElementById('actionSubtitle'),
+        metricsGrid: document.getElementById('metricsGrid'),
+        statusBox: document.getElementById('statusBox'),
+        endingBox: document.getElementById('endingBox'),
+      };
+
+      const appState = {
+        sourceType: requestedScenarioId ? 'system' : 'system',
+        engineType: 'fixed',
+        selectedScenarioId: requestedScenarioId || (allScenarios[0] && allScenarios[0].id) || '',
+        customSeedId: templateSeeds[0].id,
+        runtime: null,
+      };
+
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
       }
-    };
 
-    const app = {
-      pack: null,
-      scenario: null,
-      state: null,
-      currentActions: [],
-      turn: 0,
-      ended: false,
-      ui: {
-        select: document.getElementById("scenario-select"),
-        startBtn: document.getElementById("start-btn"),
-        resetBtn: document.getElementById("reset-btn"),
-        genreTag: document.getElementById("genre-tag"),
-        title: document.getElementById("scenario-title"),
-        desc: document.getElementById("scenario-desc"),
-        jobTitle: document.getElementById("job-title"),
-        institution: document.getElementById("institution"),
-        runStatus: document.getElementById("run-status"),
-        heroStats: document.getElementById("hero-stats"),
-        homepageBlurb: document.getElementById("homepage-blurb"),
-        turnMeta: document.getElementById("turn-meta"),
-        actions: document.getElementById("actions"),
-        metrics: document.getElementById("metrics"),
-        log: document.getElementById("log"),
-        outcome: document.getElementById("outcome"),
-        endingHint: document.getElementById("ending-hint"),
-        avatar: document.getElementById("avatar"),
-        mobileGenre: document.getElementById("mobile-genre"),
-        mobileStatus: document.getElementById("mobile-status"),
-        mobileTurn: document.getElementById("mobile-turn"),
-        storyCurrent: document.getElementById("story-current"),
-        storyCaption: document.getElementById("story-caption"),
-        storyProgress: document.getElementById("story-progress"),
-        historyCount: document.getElementById("history-count")
-      },
-      logEntries: [],
+      function hash(text) {
+        const value = String(text || '');
+        let out = 0;
+        for (let i = 0; i < value.length; i += 1) out = (out * 31 + value.charCodeAt(i)) % 2147483647;
+        return Math.abs(out);
+      }
 
-      async init() {
-        this.pack = window.SCENARIO_PACK || await this.fetchPack();
-        this.populateSelect();
-        this.bind();
-        this.start();
-      },
+      function escapeHtml(text) {
+        return String(text || '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+      }
 
-      async fetchPack() {
-        const response = await fetch("../data/scenarios/generated_scenarios.json");
-        return response.json();
-      },
+      function pick(list, seed) {
+        return list[Math.abs(seed) % list.length];
+      }
 
-      bind() {
-        this.ui.startBtn.addEventListener("click", () => this.start());
-        this.ui.resetBtn.addEventListener("click", () => this.reset());
-      },
+      function formatTimeLabel(index) {
+        return '第 ' + index + ' 回合';
+      }
 
-      populateSelect() {
-        this.ui.select.innerHTML = "";
-        const featured = this.pack.scenarios.filter((item) => item.metadata && item.metadata.featured);
-        const experimental = this.pack.scenarios.filter((item) => !item.metadata || !item.metadata.featured);
-        const urlScenario = new URLSearchParams(window.location.search).get("scenario");
-        const appendGroup = (label, items) => {
-          if (!items.length) return;
-          const group = document.createElement("optgroup");
-          group.label = label;
-          items.forEach((scenario) => {
-            const option = document.createElement("option");
-            option.value = scenario.id;
-            option.textContent = scenario.title;
-            group.appendChild(option);
+      function getSelectedScenario() {
+        return allScenarios.find((item) => item.id === appState.selectedScenarioId) || allScenarios[0] || null;
+      }
+
+      function sourceLabel() {
+        return appState.sourceType === 'system' ? '系统预设背景' : '用户自定义背景';
+      }
+
+      function engineLabel() {
+        return appState.engineType === 'fixed' ? '固定剧情 / 固定选项' : '统一 Prompt 动态续写';
+      }
+
+      function createSourceChips() {
+        el.sourceChips.innerHTML = sourceModes.map((item) => (
+          '<button class="chip ' + (appState.sourceType === item.id ? 'active' : '') + '" data-source="' + item.id + '">' +
+          '<strong>' + item.name + '</strong>' + ' · ' + item.desc + '</button>'
+        )).join('');
+        el.sourceChips.querySelectorAll('[data-source]').forEach((button) => {
+          button.addEventListener('click', () => {
+            appState.sourceType = button.getAttribute('data-source');
+            syncBuilderVisibility();
+            createSourceChips();
+            refreshBuilderHint();
           });
-          this.ui.select.appendChild(group);
-        };
-        appendGroup("主玩法", featured);
-        appendGroup("实验场景", experimental);
-        const defaultScenario = this.pack.scenarios.find((item) => item.id === urlScenario) || featured[0] || this.pack.scenarios[0];
-        if (defaultScenario) this.ui.select.value = defaultScenario.id;
-      },
-
-      reset() {
-        this.scenario = null;
-        this.state = null;
-        this.turn = 0;
-        this.ended = false;
-        this.ui.genreTag.textContent = "未启动";
-        this.ui.title.textContent = "请选择玩法";
-        this.ui.desc.textContent = "先进入一个玩法。不同玩法会切换核心资源、动作、事件和结局。";
-        this.ui.jobTitle.textContent = "身份：待定";
-        this.ui.institution.textContent = "机构：未加载";
-        this.ui.runStatus.className = "pill warn";
-        this.ui.runStatus.textContent = "状态：空闲";
-        this.ui.heroStats.innerHTML = "";
-        this.ui.homepageBlurb.textContent = "未加载场景说明。";
-        this.ui.turnMeta.textContent = "未开始";
-        this.ui.actions.innerHTML = "";
-        this.ui.metrics.innerHTML = "";
-        this.logEntries = [];
-        this.renderLog();
-        this.ui.outcome.classList.remove("active");
-        this.ui.outcome.textContent = "";
-        this.ui.endingHint.textContent = "进入玩法后会根据当前状态提示你正在靠近哪种结局。";
-        this.ui.avatar.textContent = "剧";
-        this.ui.mobileGenre.textContent = "玩法：未启动";
-        this.ui.mobileStatus.textContent = "空闲";
-        this.ui.mobileStatus.className = "pill warn";
-        this.ui.mobileTurn.textContent = "未开始";
-      },
-
-      start() {
-        const selected = this.pack.scenarios.find((item) => item.id === this.ui.select.value) || this.pack.scenarios[0];
-        if (!selected) return;
-        this.scenario = selected;
-        this.state = JSON.parse(JSON.stringify(selected.initial_state));
-        this.currentActions = [];
-        this.turn = 1;
-        this.ended = false;
-        this.logEntries = [];
-        this.renderLog();
-        this.ui.outcome.classList.remove("active");
-        this.ui.outcome.textContent = "";
-
-        const metadata = this.meta();
-        this.ui.genreTag.textContent = selected.genre;
-        this.ui.mobileGenre.textContent = `玩法：${selected.title}`;
-        this.ui.title.textContent = selected.title;
-        this.ui.desc.textContent = selected.opening_prompt;
-        this.ui.jobTitle.textContent = `身份：${metadata.job_title || "场景执行者"}`;
-        this.ui.institution.textContent = `机构：${metadata.institution || "通用模拟实验室"}`;
-        this.ui.homepageBlurb.textContent = metadata.homepage_blurb || "这是一个可执行的剧情场景。";
-        this.ui.avatar.textContent = selected.title.slice(0, 1);
-        this.setStatus("运行中", "warn");
-        this.logLine(`进入玩法：${selected.title}`);
-        this.logLine(selected.opening_prompt);
-        this.render();
-      },
-
-      meta() {
-        return this.scenario && this.scenario.metadata ? this.scenario.metadata : {};
-      },
-
-      behavior() {
-        return behaviors[this.meta().mode] || behaviors.generic;
-      },
-
-      availableActions() {
-        const behavior = this.behavior();
-        if (behavior.actionPool) {
-          return behavior.actionPool(this.turn, this.state, this.meta());
-        }
-        return this.scenario.actions;
-      },
-
-      labels() {
-        return this.meta().focus_labels || {};
-      },
-
-      labelFor(key) {
-        return this.labels()[key] || key;
-      },
-
-      setStatus(text, tone) {
-        this.ui.runStatus.className = `pill ${tone}`;
-        this.ui.runStatus.textContent = `状态：${text}`;
-        this.ui.mobileStatus.className = `pill ${tone}`;
-        this.ui.mobileStatus.textContent = text;
-      },
-
-      canAfford(action) {
-        return Object.entries(action.cost || {}).every(([key, value]) => (this.state[key] ?? 0) >= value);
-      },
-
-      applyDelta(delta, sign = 1) {
-        Object.entries(delta || {}).forEach(([key, value]) => {
-          this.state[key] = (this.state[key] ?? 0) + value * sign;
         });
-      },
+      }
 
-      normalizeState() {
-        Object.keys(this.state).forEach((key) => {
-          if (typeof this.state[key] === "number") {
-            if (key === "max_time") return;
-            if (key === "time" || key === "month" || key === "week" || key === "season_week" || key === "semester" || key === "tenure_clock" || key === "festival_deadline") {
-              this.state[key] = Math.max(0, this.state[key]);
-            } else if (key === "users" || key === "cash" || key === "footage") {
-              this.state[key] = Math.max(0, this.state[key]);
-            } else {
-              this.state[key] = clamp(this.state[key], 0, 1000);
-            }
+      function createEngineChips() {
+        el.engineChips.innerHTML = engineModes.map((item) => (
+          '<button class="chip ' + (appState.engineType === item.id ? 'active' : '') + '" data-engine="' + item.id + '">' +
+          '<strong>' + item.name + '</strong>' + ' · ' + item.desc + '</button>'
+        )).join('');
+        el.engineChips.querySelectorAll('[data-engine]').forEach((button) => {
+          button.addEventListener('click', () => {
+            appState.engineType = button.getAttribute('data-engine');
+            createEngineChips();
+            refreshBuilderHint();
+          });
+        });
+      }
+
+      function fillSystemSelect() {
+        el.systemScenario.innerHTML = allScenarios.map((scenario) => (
+          '<option value="' + scenario.id + '">' + scenario.title + ' · ' + scenario.genre + '</option>'
+        )).join('');
+        if (appState.selectedScenarioId) el.systemScenario.value = appState.selectedScenarioId;
+      }
+
+      function fillTemplateChips() {
+        el.templateChips.innerHTML = templateSeeds.map((seed) => (
+          '<button class="chip ' + (appState.customSeedId === seed.id ? 'active' : '') + '" data-template="' + seed.id + '">' + seed.title + '</button>'
+        )).join('');
+        el.templateChips.querySelectorAll('[data-template]').forEach((button) => {
+          button.addEventListener('click', () => {
+            const seed = templateSeeds.find((item) => item.id === button.getAttribute('data-template'));
+            if (!seed) return;
+            appState.customSeedId = seed.id;
+            el.customTitle.value = seed.title;
+            el.customGenre.value = seed.genre;
+            el.customBackground.value = seed.background;
+            fillTemplateChips();
+            refreshBuilderHint();
+          });
+        });
+      }
+
+      function syncBuilderVisibility() {
+        const isSystem = appState.sourceType === 'system';
+        el.systemScenarioField.classList.toggle('hidden', !isSystem);
+        el.customTitle.parentElement.classList.toggle('hidden', isSystem);
+        el.customGenre.parentElement.classList.toggle('hidden', isSystem);
+        el.customBackgroundField.classList.toggle('hidden', isSystem);
+        el.templateArea.classList.toggle('hidden', isSystem);
+      }
+
+      function metricEntriesFromState(stateObj) {
+        return Object.entries(stateObj || {}).filter(([key, value]) => typeof value === 'number' && key !== 'max_time');
+      }
+
+      function prettyMetricLabel(key, labels) {
+        const defaults = {
+          momentum: '推进势能',
+          tension: '紧张值',
+          clue: '线索',
+          bond: '关系',
+          stability: '稳定度',
+          round_count: '回合',
+          wealth: '财富',
+          drama: '戏剧值',
+          aura: '气场',
+          dignity: '体面',
+          nemesis: '宿敌',
+          papers: '论文',
+          grants: '基金',
+          students: '学生',
+          reputation: '声望',
+          energy: '精力',
+          sanity: '理智',
+          family: '家庭',
+          admin: '行政负担',
+          burnout: '倦怠',
+          teaching: '教学',
+          tenure_clock: '教职进度',
+        };
+        return (labels && labels[key]) || defaults[key] || key;
+      }
+
+      function summarizeState(stateObj, labels) {
+        const entries = metricEntriesFromState(stateObj);
+        if (!entries.length) return '当前局尚未形成可读状态。';
+        return entries.slice(0, 5).map(([key, value]) => prettyMetricLabel(key, labels) + ' ' + value).join('，') + '。';
+      }
+
+      function buildSystemBackground(scenario) {
+        const meta = scenario.metadata || {};
+        return {
+          sourceType: 'system',
+          title: scenario.title,
+          genre: scenario.genre,
+          opening: scenario.opening_prompt || '',
+          referenceSummary: [scenario.core_loop, meta.homepage_blurb, (meta.institution || '') + ' / ' + (meta.job_title || '')].filter(Boolean).join('；'),
+          labels: meta.focus_labels || {},
+          institution: meta.institution || scenario.genre,
+          role: meta.job_title || scenario.core_loop,
+          openingNote: scenario.opening_prompt || '已进入系统预设玩法。',
+          subtitle: meta.homepage_blurb || scenario.core_loop,
+        };
+      }
+
+      function buildCustomBackground() {
+        const title = el.customTitle.value.trim() || '自定义剧情实验';
+        const genre = el.customGenre.value.trim() || '开放世界互动故事';
+        const background = el.customBackground.value.trim();
+        return {
+          sourceType: 'custom',
+          title,
+          genre,
+          opening: background,
+          referenceSummary: '用户手动定义的世界观背景。',
+          institution: '自定义叙事场域',
+          role: '未命名主角 / 变量驱动者',
+          openingNote: background || '你还没有填写背景，所以系统会用标题和题材帮你临时补全世界设定。',
+          subtitle: background ? background.slice(0, 90) + (background.length > 90 ? '...' : '') : '请用一段文字定义主角处境、冲突核心与世界规则。',
+          labels: {
+            momentum: '推进势能',
+            tension: '张力',
+            clue: '线索',
+            bond: '牵引力',
+            stability: '稳定度',
+            round_count: '回合',
+          },
+        };
+      }
+
+      function normalizeDynamicState(rawState) {
+        const base = rawState || {};
+        return {
+          momentum: clamp(Number(base.momentum ?? 42), 0, 100),
+          tension: clamp(Number(base.tension ?? 36), 0, 100),
+          clue: clamp(Number(base.clue ?? 1), 0, 100),
+          bond: clamp(Number(base.bond ?? 28), 0, 100),
+          stability: clamp(Number(base.stability ?? 62), 0, 100),
+          round_count: Math.max(1, Number(base.round_count ?? 1)),
+          max_time: Math.max(6, Number(base.max_time ?? 12)),
+        };
+      }
+
+      function normalizeFixedState(rawState) {
+        const next = Object.assign({}, rawState || {});
+        Object.keys(next).forEach((key) => {
+          if (typeof next[key] === 'number') {
+            next[key] = key === 'round_count' || key === 'tenure_clock' || key === 'max_time' ? Math.max(0, Math.round(next[key])) : clamp(Math.round(next[key]), -30, 120);
           }
         });
-      },
+        if (typeof next.round_count !== 'number') next.round_count = 1;
+        if (typeof next.max_time !== 'number') next.max_time = 12;
+        return next;
+      }
 
-      evalExpr(expr) {
-        try { return Boolean(new Function("state", `with (state) { return (${expr}); }`)(this.state)); }
-        catch { return false; }
-      },
+      function createCustomFixedSeed(background, style) {
+        const seed = hash(background.title + background.opening + style.tone);
+        return {
+          id: 'custom_fixed_' + seed,
+          title: background.title,
+          genre: background.genre,
+          opening_prompt: background.opening || ('在“' + background.title + '”这个新世界里，你站在所有变量开始波动的节点上。'),
+          initial_state: {
+            momentum: 40 + seed % 12,
+            tension: 28 + seed % 18,
+            clue: 3 + seed % 5,
+            bond: 24 + seed % 16,
+            stability: 58 - seed % 12,
+            round_count: 1,
+            max_time: 10,
+          },
+          metadata: {
+            institution: background.institution,
+            job_title: background.role,
+            homepage_blurb: background.subtitle,
+            focus_labels: background.labels,
+            hero_keys: ['momentum', 'tension', 'clue', 'bond'],
+            featured_keys: ['stability', 'round_count'],
+            month_label: '剧情回合',
+          },
+          actions: buildCustomFixedActionPool(background, style, seed),
+          random_events: [],
+        };
+      }
 
-      checkOutcome() {
-        for (const condition of this.scenario.fail_conditions) {
-          if (this.evalExpr(condition)) return { type: "fail", reason: condition };
+      function buildCustomFixedActionPool(background, style, seed) {
+        const nouns = extractKeywords(background.opening || background.title);
+        const focus = nouns[0] || '局势';
+        return [
+          {
+            id: 'custom_probe',
+            name: '围绕“' + focus + '”做第一轮试探',
+            desc: '先摸清这条线到底是机会还是陷阱。',
+            effect: { momentum: 7, clue: 3, tension: 4, stability: -2 },
+          },
+          {
+            id: 'custom_push',
+            name: '强行把故事推向新阶段',
+            desc: '适合想要更快出高光反转。',
+            effect: { momentum: 11, tension: 8, bond: -2, stability: -5 },
+          },
+          {
+            id: 'custom_cover',
+            name: '先稳住场面再布后手',
+            desc: '减少失控风险，但推进会更慢。',
+            effect: { momentum: 4, tension: -3, bond: 4, stability: 7 },
+          },
+          {
+            id: 'custom_twist',
+            name: '用“' + style.tone + '”方式制造反转',
+            desc: '让风格直接变成动作的一部分。',
+            effect: { momentum: 8, tension: 6, clue: 2, bond: 2, stability: -1 },
+          },
+        ];
+      }
+
+      function extractKeywords(text) {
+        const list = String(text || '').replace(/[，。！？、,.!?;；:：]/g, ' ').split(/\s+/).filter(Boolean);
+        const deduped = [];
+        list.forEach((word) => {
+          if (word.length >= 2 && deduped.indexOf(word) === -1) deduped.push(word);
+        });
+        return deduped.slice(0, 8);
+      }
+
+      function chooseHeroKeys(background, stateObj) {
+        const labels = background.labels || {};
+        const preferred = Object.keys(labels).filter((key) => typeof stateObj[key] === 'number' && key !== 'max_time');
+        if (preferred.length >= 4) return preferred.slice(0, 4);
+        return metricEntriesFromState(stateObj).slice(0, 4).map(([key]) => key);
+      }
+
+      function chooseExtraKeys(heroKeys, stateObj) {
+        return metricEntriesFromState(stateObj).map(([key]) => key).filter((key) => heroKeys.indexOf(key) === -1).slice(0, 6);
+      }
+
+      function createRuntime() {
+        const style = {
+          language: el.languageSelect.value,
+          tone: el.toneSelect.value,
+          voice: el.voiceSelect.value,
+          extra: el.styleExtra.value.trim(),
+        };
+        const background = appState.sourceType === 'system' ? buildSystemBackground(getSelectedScenario()) : buildCustomBackground();
+        if (appState.sourceType === 'custom' && !background.opening && appState.engineType === 'dynamic') {
+          background.opening = '请基于“' + background.title + '”和题材“' + background.genre + '”构建一个有冲突、可互动、可延续的故事开场。';
         }
-        if (this.scenario.win_conditions.every((condition) => this.evalExpr(condition))) {
-          return { type: "win", reason: this.scenario.win_conditions.join(" && ") };
+
+        const fixedScenario = appState.sourceType === 'system' ? getSelectedScenario() : createCustomFixedSeed(background, style);
+        const fixedState = normalizeFixedState((fixedScenario && fixedScenario.initial_state) || {});
+        const dynamicState = normalizeDynamicState();
+        const heroKeys = appState.engineType === 'fixed'
+          ? chooseHeroKeys(background, fixedState)
+          : ['momentum', 'tension', 'clue', 'bond'];
+        const runtime = {
+          sourceType: appState.sourceType,
+          engineType: appState.engineType,
+          style,
+          background,
+          fixedScenario,
+          state: appState.engineType === 'fixed' ? fixedState : dynamicState,
+          heroKeys,
+          extraKeys: appState.engineType === 'fixed' ? chooseExtraKeys(heroKeys, fixedState) : ['stability', 'round_count'],
+          turn: 1,
+          history: [],
+          latestStory: '',
+          currentChoices: [],
+          hint: '',
+          isEnding: false,
+          endingText: '当前未进入结局线。',
+          backendMode: appState.engineType === 'dynamic' ? '等待第一次续写' : '固定模板运行中',
+        };
+        return runtime;
+      }
+
+      function initialStoryForRuntime(runtime) {
+        if (runtime.engineType === 'dynamic') {
+          return (runtime.background.opening || runtime.fixedScenario?.opening_prompt || '故事开始波动了。') + ' 这局将由统一故事引擎根据你的每一步继续往下生成。';
         }
-        return null;
-      },
+        const scenario = runtime.fixedScenario;
+        return scenario && scenario.opening_prompt ? scenario.opening_prompt : runtime.background.openingNote;
+      }
 
-      describeMap(map) {
-        return Object.entries(map || {}).map(([key, value]) => `${this.labelFor(key)} ${value > 0 ? "+" : ""}${value}`).join(" / ");
-      },
+      function actionTagText(action) {
+        if (action.tag) return action.tag;
+        if (action.category) return action.category;
+        return '固定选项';
+      }
 
-      doAction(actionId) {
-        if (!this.scenario || this.ended) return;
-        const action = this.currentActions.find((item) => item.id === actionId);
+      function effectSummary(effect, labels) {
+        const entries = Object.entries(effect || {}).filter(([, value]) => typeof value === 'number');
+        if (!entries.length) return '本动作主要推动剧情分支。';
+        return entries.map(([key, value]) => {
+          const sign = value > 0 ? '+' : '';
+          return prettyMetricLabel(key, labels) + ' ' + sign + value;
+        }).join(' · ');
+      }
+
+      function generateSystemFixedNarrative(runtime, action, event) {
+        const flavor = action.flavor || action.desc || '局势出现了新的推进。';
+        const stage = runtime.turn >= runtime.state.max_time - 1 ? '终局收束' : (runtime.turn <= 2 ? '开局铺陈' : runtime.turn <= 5 ? '中盘拉扯' : '高压推进');
+        const eventLine = event ? ' 与此同时，' + event.message : '';
+        return '【' + stage + '】你选择了“' + action.name + '”。' + flavor + eventLine + ' 这一步让“' + runtime.background.title + '”的主线不再只是属性跳动，而是明确往下一段剧情分支推进。';
+      }
+
+      function generateCustomFixedNarrative(runtime, action) {
+        const focus = extractKeywords(runtime.background.opening || runtime.background.title)[0] || '局势';
+        const toneLead = {
+          '戏剧张力强': '场面立刻被拉高，所有隐藏矛盾都被扯到了台前。',
+          '克制冷静': '你没有把牌一次打光，而是留出了下一轮可操作空间。',
+          '黑色幽默': '这一步看似离谱，实际上恰好戳中整个故事最脆弱的那根线。',
+          '热血爽文': '你几乎是强行把主动权从世界手里抢了回来。',
+          '悬疑压迫': '空气没有变轻，反而让更多未明说的东西开始浮出水面。',
+          '治愈慢热': '推进不算猛烈，但故事里最紧绷的地方终于出现了一点松动。',
+        };
+        return '你围绕“' + focus + '”执行了“' + action.name + '”。' + (toneLead[runtime.style.tone] || toneLead['戏剧张力强']) + ' 于是新的情节节点被打开，接下来不只是数值变化，而是会继续分叉出新的处境和选择。';
+      }
+
+      function maybePickEvent(scenario, turn) {
+        const events = Array.isArray(scenario.random_events) ? scenario.random_events : [];
+        if (!events.length) return null;
+        const event = events[(turn - 1) % events.length];
+        const probability = Number(event.probability || 0);
+        const seed = (hash(scenario.id) + turn * 17) % 100;
+        return seed < probability * 100 ? event : null;
+      }
+
+      function applyFixedChoice(choiceId) {
+        const runtime = appState.runtime;
+        if (!runtime || runtime.isEnding) return;
+        const action = runtime.currentChoices.find((item) => item.id === choiceId);
         if (!action) return;
-        if (!this.canAfford(action)) {
-          this.logLine(`资源不足，无法执行：${action.name}`);
+        const scenario = runtime.fixedScenario;
+        const labels = runtime.background.labels;
+        const event = maybePickEvent(scenario, runtime.turn);
+        const nextState = Object.assign({}, runtime.state);
+        const effect = Object.assign({}, action.effect || {});
+        if (event && event.effect) {
+          Object.keys(event.effect).forEach((key) => {
+            effect[key] = Number(effect[key] || 0) + Number(event.effect[key] || 0);
+          });
+        }
+        Object.keys(effect).forEach((key) => {
+          if (typeof nextState[key] !== 'number') nextState[key] = 0;
+          nextState[key] = nextState[key] + Number(effect[key] || 0);
+        });
+        nextState.round_count = Math.max(1, Number(nextState.round_count || runtime.turn) + 1);
+        runtime.turn = nextState.round_count;
+        runtime.state = normalizeFixedState(nextState);
+        runtime.latestStory = runtime.sourceType === 'system'
+          ? generateSystemFixedNarrative(runtime, action, event)
+          : generateCustomFixedNarrative(runtime, action);
+        runtime.hint = '你刚才触发的是固定模板分支，但故事推进文本会继续根据当前状态变化。';
+        runtime.history.unshift({
+          turn: runtime.turn - 1,
+          choice: action.name,
+          story: runtime.latestStory,
+        });
+        runtime.heroKeys = chooseHeroKeys(runtime.background, runtime.state);
+        runtime.extraKeys = chooseExtraKeys(runtime.heroKeys, runtime.state);
+        const shouldEnd = runtime.turn > Number(runtime.state.max_time || 10);
+        runtime.isEnding = shouldEnd;
+        runtime.endingText = shouldEnd
+          ? buildFixedEnding(runtime, action)
+          : '当前仍在推进阶段。再走几轮，系统会逐步靠近结局线。';
+        runtime.currentChoices = shouldEnd ? [] : buildFixedChoices(runtime);
+        renderRuntime();
+      }
+
+      function buildFixedEnding(runtime, action) {
+        const labels = runtime.background.labels;
+        const leading = metricEntriesFromState(runtime.state).sort((a, b) => Number(b[1]) - Number(a[1]))[0];
+        const winner = leading ? prettyMetricLabel(leading[0], labels) : '主线张力';
+        const endingMap = {
+          wealth: '你最终把一连串荒诞机会收束成现实收益，完成了名利双收的逆袭收官。',
+          reputation: '你把一度摇摇欲坠的局面打成了个人声望的上升通道。',
+          momentum: '你在持续推进里拿到了主导权，这个世界开始按照你的节奏展开。',
+          clue: '你靠线索串起了完整真相，结局因此更像是一场有准备的翻盘。',
+        };
+        const line = endingMap[leading && leading[0]] || '你把整局的关键变量拧成了一条能闭环的个人路径。';
+        return '你在“' + runtime.background.title + '”里以“' + action.name + '”完成最后一轮推进。最终最强的指标是“' + winner + '”。' + line;
+      }
+
+      function buildFixedChoices(runtime) {
+        const scenario = runtime.fixedScenario;
+        const actions = Array.isArray(scenario.actions) ? scenario.actions : [];
+        if (!actions.length) return [];
+        const turnSeed = hash(runtime.background.title + runtime.turn);
+        const rotated = actions.slice(turnSeed % actions.length).concat(actions.slice(0, turnSeed % actions.length));
+        return rotated.slice(0, Math.min(4, rotated.length)).map((action, index) => ({
+          id: action.id + '_' + runtime.turn + '_' + index,
+          originalId: action.id,
+          name: action.name,
+          desc: action.desc,
+          flavor: action.flavor,
+          category: action.category,
+          effect: action.effect || {},
+          cost: action.cost || {},
+          tag: actionTagText(action),
+        }));
+      }
+
+      function fallbackDynamicTurn(payload) {
+        const turn = Math.max(1, Number(payload.turn || 1));
+        const currentState = normalizeDynamicState(payload.state || {});
+        const background = payload.background || {};
+        const style = payload.style || {};
+        const selectedChoice = payload.selectedChoice || null;
+        const keywords = extractKeywords(background.opening || background.title);
+        const focus = keywords[0] || '局势';
+        if (turn === 1 && !selectedChoice) {
+          return {
+            story: (background.opening || '故事开始了。') + ' 第一轮里，你需要决定要先推进主线、摸清暗线，还是先稳住人物关系。',
+            choices: [
+              { id: 'dyn_1_1', text: '主动推进：围绕“' + focus + '”正面开局', desc: '快速拉起第一波节奏。', tag: '推进' },
+              { id: 'dyn_1_2', text: '谨慎观察：先摸一遍隐藏关系', desc: '适合想保留信息差。', tag: '试探' },
+              { id: 'dyn_1_3', text: '制造反差：用“' + (style.tone || '戏剧张力强') + '”方式切入', desc: '让风格直接介入剧情。', tag: '反转' },
+            ],
+            state: currentState,
+            hint: '第一轮建议先决定你要用什么姿态进入故事。',
+            isEnding: false,
+          };
+        }
+        if (currentState.round_count >= currentState.max_time) {
+          return {
+            story: '你已经把“' + background.title + '”推进到结局线。此前累积的选择开始一并回响，世界不再给你无限试错空间，而是要求你把所有分支收束成最终走向。',
+            choices: [],
+            state: normalizeDynamicState(Object.assign({}, currentState, { round_count: currentState.max_time })),
+            hint: '动态故事已经进入结局。',
+            isEnding: true,
+          };
+        }
+        const lastText = selectedChoice && (selectedChoice.text || selectedChoice.name) || '继续推进';
+        const nextState = normalizeDynamicState({
+          momentum: currentState.momentum + (hash(lastText) % 11 - 2),
+          tension: currentState.tension + (hash(background.title + lastText) % 9 - 3),
+          clue: currentState.clue + (hash(background.opening) % 4),
+          bond: currentState.bond + (hash(style.extra + focus) % 7 - 2),
+          stability: currentState.stability + (hash(style.voice + lastText) % 9 - 4),
+          round_count: currentState.round_count + 1,
+          max_time: currentState.max_time,
+        });
+        const introMap = {
+          '戏剧张力强': '你这一步一落下去，所有潜在矛盾都开始往台前聚集。',
+          '克制冷静': '局面表面没炸，但真正重要的东西已经开始重新排列。',
+          '黑色幽默': '这一步看上去荒诞，实际却精准踩中了剧情最敏感的位置。',
+          '热血爽文': '你几乎是用行动把局势从被动里硬拽了回来。',
+          '悬疑压迫': '你像拨动了一根暗线，整个氛围立刻变得更紧。',
+          '治愈慢热': '你没有急着拔高冲突，而是先把故事最关键的一点情绪接住了。',
+        };
+        const actionPool = ['继续正面推进', '先绕开风险试探', '故意制造一个误判', '给自己留下一张底牌'];
+        return {
+          story: '上一轮你选择了“' + lastText + '”。' + (introMap[style.tone] || introMap['戏剧张力强']) + ' 现在围绕“' + focus + '”出现了新的推进口，叙述仍保持“' + (style.voice || '第三人称近景') + '”和“' + (style.tone || '戏剧张力强') + '”的质感。',
+          choices: actionPool.map((label, index) => ({
+            id: 'dyn_' + nextState.round_count + '_' + (index + 1),
+            text: label + '：把“' + focus + '”往' + (index % 2 === 0 ? '更主动' : '更隐蔽') + '的方向推进',
+            desc: index === 0 ? '适合抢节奏。' : index === 1 ? '适合继续试探。' : index === 2 ? '适合放大反转。' : '适合留后手。',
+            tag: ['推进', '试探', '反转', '蓄力'][index],
+          })),
+          state: nextState,
+          hint: nextState.round_count >= nextState.max_time - 1 ? '你已经很接近结局线。' : '下一轮会继续沿着你选的方向延展。',
+          isEnding: false,
+        };
+      }
+
+      async function requestDynamicTurn(selectedChoice) {
+        const runtime = appState.runtime;
+        const payload = {
+          background: runtime.background,
+          style: runtime.style,
+          history: runtime.history.slice(0, 8).map((item) => ({ choice: item.choice, story: item.story, turn: item.turn })),
+          state: runtime.state,
+          turn: runtime.turn,
+          selectedChoice,
+        };
+        try {
+          const response = await fetch('/api/story/continue', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          if (!response.ok) throw new Error('HTTP ' + response.status);
+          const data = await response.json();
+          runtime.backendMode = '服务端动态续写';
+          return {
+            story: String(data.story || ''),
+            choices: Array.isArray(data.choices) ? data.choices : [],
+            state: normalizeDynamicState(data.state || runtime.state),
+            hint: data.hint || '动态故事已继续生成。',
+            isEnding: Boolean(data.isEnding),
+          };
+        } catch (_error) {
+          runtime.backendMode = '本地回退续写';
+          return fallbackDynamicTurn(payload);
+        }
+      }
+
+      async function startRuntime() {
+        appState.runtime = createRuntime();
+        const runtime = appState.runtime;
+        runtime.latestStory = initialStoryForRuntime(runtime);
+        runtime.hint = runtime.engineType === 'dynamic'
+          ? '故事引擎尚未开始续写，点击一项动作后会进入统一 prompt 续写链路。'
+          : '固定模板已就绪，点击动作即可进入下一段结构化剧情。';
+        runtime.history = [{ turn: 0, choice: '开局', story: runtime.latestStory }];
+        runtime.currentChoices = runtime.engineType === 'fixed' ? buildFixedChoices(runtime) : [];
+        runtime.endingText = '当前未进入结局线。';
+        renderRuntime();
+        if (runtime.engineType === 'dynamic') {
+          const firstTurn = await requestDynamicTurn(null);
+          applyDynamicTurn(firstTurn, '系统开局');
+        }
+      }
+
+      function applyDynamicTurn(turnResult, choiceLabel) {
+        const runtime = appState.runtime;
+        runtime.latestStory = turnResult.story;
+        runtime.state = normalizeDynamicState(turnResult.state || runtime.state);
+        runtime.turn = runtime.state.round_count;
+        runtime.hint = turnResult.hint || '下一轮会继续往下生成。';
+        runtime.isEnding = Boolean(turnResult.isEnding);
+        runtime.currentChoices = runtime.isEnding ? [] : (turnResult.choices || []).slice(0, 4).map((choice, index) => ({
+          id: choice.id || 'dyn_' + runtime.turn + '_' + index,
+          name: choice.text || choice.name || ('选项 ' + (index + 1)),
+          desc: choice.desc || '继续生成下一段剧情。',
+          tag: choice.tag || '动态生成',
+          effect: {},
+        }));
+        runtime.history.unshift({ turn: runtime.turn, choice: choiceLabel, story: runtime.latestStory });
+        runtime.heroKeys = ['momentum', 'tension', 'clue', 'bond'];
+        runtime.extraKeys = ['stability', 'round_count'];
+        runtime.endingText = runtime.isEnding
+          ? '动态故事已进入结局线。你可以重置后换一个背景，或者换成固定模板继续测。'
+          : '当前仍在动态续写阶段，下一轮会根据你的选择继续展开。';
+        renderRuntime();
+      }
+
+      async function onChoice(choiceId) {
+        const runtime = appState.runtime;
+        if (!runtime || runtime.isEnding) return;
+        const selected = runtime.currentChoices.find((item) => item.id === choiceId);
+        if (!selected) return;
+        if (runtime.engineType === 'fixed') {
+          applyFixedChoice(choiceId);
           return;
         }
-
-        this.applyDelta(action.cost, -1);
-        this.applyDelta(action.effect, 1);
-        const leadLine = this.behavior().actionLog(actionId, this.scenario, action);
-        const extraLines = [];
-        this.behavior().extra(actionId, this.state, Math.random, (line) => extraLines.push(line));
-        this.behavior().passive(this.state);
-        this.turn += 1;
-        const events = this.runEvents();
-        this.normalizeState();
-
-        const outcome = this.checkOutcome();
-        this.logLine(this.composeNarrativeTurn(action, leadLine, extraLines, events, outcome));
-        if (outcome) {
-          this.ended = true;
-          this.setStatus(outcome.type === "win" ? "达成结局" : "触发结局", outcome.type === "win" ? "good" : "bad");
-          const ending = this.behavior().ending(outcome, this.state);
-          this.ui.outcome.classList.add("active");
-          this.ui.outcome.textContent = ending;
-          this.logLine(ending);
-        } else {
-          this.setStatus("运行中", this.warningTone());
-        }
-        this.render();
-      },
-
-      warningTone() {
-        const state = this.state;
-        const keys = ["sanity", "health", "stamina", "sleep", "trust", "support", "family"];
-        if (keys.some((key) => key in state && state[key] <= 20)) return "bad";
-        return "warn";
-      },
-
-      runEvents() {
-        const triggered = [];
-        this.scenario.random_events.forEach((event) => {
-          if (Math.random() < event.probability) {
-            this.applyDelta(event.effect, 1);
-            triggered.push(event);
-          }
-        });
-        return triggered;
-      },
-
-      narrativePrefix() {
-        return {
-          dogblood: "离谱的是",
-          qingjiao: "紧接着",
-          esports: "随即",
-          startup: "下一秒",
-          film: "镜头一转",
-          rebuild: "与此同时",
-          campus: "随后",
-          generic: "接着"
-        }[this.meta().mode] || "接着";
-      },
-
-      summarizeDelta(delta, sign = 1) {
-        const entries = Object.entries(delta || {})
-          .filter(([, value]) => value)
-          .map(([key, value]) => {
-            const amount = value * sign;
-            return `${this.labelFor(key)}${amount > 0 ? "上升" : "下降"}${Math.abs(amount)}`;
-          });
-        if (!entries.length) return "";
-        return entries.slice(0, 3).join("，");
-      },
-
-      stateFocusLine() {
-        const featuredKeys = (this.meta().featured_keys || []).slice(0, 2);
-        if (!featuredKeys.length) return "";
-        return featuredKeys.map((key) => `${this.labelFor(key)}来到 ${this.state[key]}`).join("，");
-      },
-
-      composeNarrativeTurn(action, leadLine, extraLines, events, outcome) {
-        const parts = [];
-        parts.push(leadLine);
-
-        const gainText = this.summarizeDelta(action.effect, 1);
-        const costText = this.summarizeDelta(action.cost, -1);
-        if (gainText || costText) {
-          parts.push(
-            `${this.narrativePrefix()}这一手让局面明显动了起来，${[gainText, costText].filter(Boolean).join("，")}。`
-          );
-        }
-
-        if (extraLines.length) {
-          parts.push(extraLines.join(" "));
-        }
-
-        if (events.length) {
-          parts.push(events.map((event) => event.message).join(" "));
-        }
-
-        const focus = this.stateFocusLine();
-        if (focus) {
-          parts.push(`眼下最直观的变化是：${focus}。`);
-        }
-
-        if (outcome) {
-          parts.push(outcome.type === "win" ? "这一步已经把你直接推到了结局门口。" : "这一步的后坐力比预想更大，局势当场收束成了结局。");
-        } else {
-          parts.push(`下一步的空气已经变了：${this.behavior().hint(this.state)}`);
-        }
-
-        return parts.join(" ");
-      },
-
-      renderHeroStats() {
-        this.ui.heroStats.innerHTML = "";
-        const heroKeys = this.meta().hero_keys || [];
-        heroKeys.forEach((key) => {
-          const card = document.createElement("div");
-          card.className = "stat";
-          card.innerHTML = `<div class="label">${this.labelFor(key)}</div><div class="value">${this.state[key] ?? "-"}</div>`;
-          this.ui.heroStats.appendChild(card);
-        });
-      },
-
-      renderActions() {
-        this.ui.actions.innerHTML = "";
-        this.currentActions = this.availableActions();
-        this.currentActions.forEach((action) => {
-          const button = document.createElement("button");
-          button.className = "action";
-          button.disabled = this.ended || !this.canAfford(action);
-          button.innerHTML = [
-            `<div class="action-name">${action.name}</div>`,
-            `<div class="action-desc">${action.desc}</div>`,
-            `<div class="action-meta">消耗：${this.describeMap(action.cost)}</div>`,
-            `<div class="action-meta">收益：${this.describeMap(action.effect)}</div>`
-          ].join("");
-          button.addEventListener("click", () => this.doAction(action.id));
-          this.ui.actions.appendChild(button);
-        });
-      },
-
-      metricPercent(key, value) {
-        if (key === "tenure_clock" || key === "season_week" || key === "month" || key === "week" || key === "semester" || key === "festival_deadline" || key === "time") {
-          return (value / this.state.max_time) * 100;
-        }
-        return clamp(value, 0, 100);
-      },
-
-      renderMetrics() {
-        this.ui.metrics.innerHTML = "";
-        const featuredKeys = this.meta().featured_keys || Object.keys(this.state);
-        featuredKeys.forEach((key) => {
-          const value = this.state[key];
-          const card = document.createElement("div");
-          card.className = "metric";
-          card.innerHTML = [
-            `<div class="label">${this.labelFor(key)}</div>`,
-            `<div class="value">${value}</div>`,
-            `<div class="bar"><span style="width:${this.metricPercent(key, value)}%"></span></div>`
-          ].join("");
-          this.ui.metrics.appendChild(card);
-        });
-      },
-
-      renderHint() {
-        this.ui.endingHint.textContent = this.behavior().hint(this.state);
-      },
-
-      render() {
-        const progressKey = ["tenure_clock", "season_week", "month", "festival_deadline", "week", "semester", "time"].find((key) => key in this.state);
-        const progressText = progressKey ? `${this.labelFor(progressKey)} ${this.state[progressKey]}/${this.state.max_time}` : `回合 ${this.turn}`;
-        this.ui.turnMeta.textContent = `第 ${this.turn} 步 | ${progressText}`;
-        this.ui.mobileTurn.textContent = progressText;
-        this.ui.storyProgress.textContent = `第 ${this.turn} 步进行中`;
-        this.renderHeroStats();
-        this.renderActions();
-        this.renderMetrics();
-        this.renderHint();
-      },
-
-      renderLog() {
-        const entries = this.logEntries.slice();
-        const current = entries.slice(-2);
-        this.ui.storyCurrent.innerHTML = "";
-        if (!current.length) {
-          this.ui.storyCurrent.innerHTML = `<div class="story-bubble latest">等待进入玩法。</div>`;
-          this.ui.storyCaption.textContent = "进入玩法后，这里会优先显示最近推进的剧情片段。";
-        } else {
-          current.forEach((entry, index) => {
-            const bubble = document.createElement("div");
-            bubble.className = `story-bubble${index === current.length - 1 ? " latest" : ""}`;
-            bubble.textContent = entry.text;
-            this.ui.storyCurrent.appendChild(bubble);
-          });
-          this.ui.storyCaption.textContent = entries.length > 2 ? "上方展示最近两段关键推进，完整经过可以展开下面的时间线。" : "你现在看到的是本轮最新剧情。";
-        }
-
-        this.ui.log.innerHTML = "";
-        entries.forEach((entry) => {
-          const line = document.createElement("div");
-          line.className = "log-entry";
-          line.innerHTML = `<div class="log-time">${entry.time}</div><div class="log-text"></div>`;
-          line.querySelector(".log-text").textContent = entry.text;
-          this.ui.log.appendChild(line);
-        });
-        this.ui.historyCount.textContent = `${entries.length} 条记录`;
-      },
-
-      logLine(text) {
-        const now = new Date().toLocaleTimeString("zh-CN", { hour12: false });
-        this.logEntries.push({ time: now, text });
-        this.renderLog();
-        this.ui.log.scrollTop = this.ui.log.scrollHeight;
+        el.storyHint.textContent = '正在续写下一轮...';
+        const nextTurn = await requestDynamicTurn({ id: selected.id, text: selected.name, tag: selected.tag });
+        applyDynamicTurn(nextTurn, selected.name);
       }
-    };
 
-    app.init().catch((error) => {
-      document.getElementById("log").textContent = String(error);
-    });
+      function renderIdentity(runtime) {
+        if (!runtime) return;
+        el.avatarTile.textContent = (runtime.background.title || 'SL').slice(0, 2).toUpperCase();
+        el.modeBadge.textContent = sourceLabel() + ' · ' + engineLabel();
+        el.identityTitle.textContent = runtime.background.title;
+        el.identitySubtitle.textContent = runtime.background.subtitle;
+        el.identityPills.innerHTML = [runtime.background.genre, runtime.background.institution, runtime.background.role].filter(Boolean).map((text) => '<span class="pill">' + escapeHtml(text) + '</span>').join('');
+        el.openingNote.textContent = runtime.background.openingNote;
+      }
+
+      function renderStats(runtime) {
+        const labels = runtime.background.labels;
+        el.heroStats.innerHTML = runtime.heroKeys.map((key) => {
+          const value = runtime.state[key];
+          return '<div class="stat-card"><div class="label">' + escapeHtml(prettyMetricLabel(key, labels)) + '</div><div class="value">' + escapeHtml(value == null ? '-' : value) + '</div></div>';
+        }).join('');
+        el.metricsGrid.innerHTML = runtime.extraKeys.map((key) => {
+          const value = Number(runtime.state[key] || 0);
+          const max = key === 'round_count' ? Math.max(Number(runtime.state.max_time || 10), value, 1) : 100;
+          return '<div class="metric-card"><div class="label">' + escapeHtml(prettyMetricLabel(key, labels)) + '</div><div class="value">' + escapeHtml(value) + '</div><div class="bar"><span style="width:' + clamp((value / max) * 100, 0, 100) + '%"></span></div></div>';
+        }).join('');
+      }
+
+      function renderHistory(runtime) {
+        el.historyLabel.textContent = runtime.history.length + ' 条记录';
+        if (!runtime.history.length) {
+          el.historyLog.innerHTML = '<div class="empty">还没有历史记录。</div>';
+          return;
+        }
+        el.historyLog.innerHTML = runtime.history.map((entry) => (
+          '<div class="log-entry"><div class="log-time">' + escapeHtml(entry.turn === 0 ? '开局' : formatTimeLabel(entry.turn)) + ' · ' + escapeHtml(entry.choice) + '</div><div class="log-text">' + escapeHtml(entry.story) + '</div></div>'
+        )).join('');
+      }
+
+      function renderActions(runtime) {
+        el.actionSubtitle.textContent = runtime.engineType === 'fixed'
+          ? '当前是固定剧情模式：按钮来自预定义动作池，但剧情文本会随状态变化推进。'
+          : '当前是动态续写模式：每次点击后都会生成下一段剧情和新选项。';
+        if (!runtime.currentChoices.length) {
+          el.actionsGrid.innerHTML = '<div class="empty">' + (runtime.isEnding ? '这一局已经到结局了，重置后再来一局。' : '等待生成动作选项。') + '</div>';
+          return;
+        }
+        el.actionsGrid.innerHTML = runtime.currentChoices.map((choice) => (
+          '<button class="action-btn" data-choice="' + escapeHtml(choice.id) + '">' +
+          '<div class="action-title">' + escapeHtml(choice.name) + '</div>' +
+          '<div class="action-desc">' + escapeHtml(choice.desc || '继续推进剧情。') + '</div>' +
+          '<div class="action-meta">' + escapeHtml(choice.tag || '剧情动作') + ' · ' + escapeHtml(effectSummary(choice.effect || {}, runtime.background.labels)) + '</div>' +
+          '</button>'
+        )).join('');
+        el.actionsGrid.querySelectorAll('[data-choice]').forEach((button) => {
+          button.addEventListener('click', () => onChoice(button.getAttribute('data-choice')));
+        });
+      }
+
+      function renderRuntime() {
+        const runtime = appState.runtime;
+        if (!runtime) return;
+        renderIdentity(runtime);
+        renderStats(runtime);
+        renderHistory(runtime);
+        renderActions(runtime);
+        el.latestStory.textContent = runtime.latestStory;
+        el.storyHint.textContent = runtime.hint;
+        el.storyKicker.textContent = runtime.engineType === 'fixed' ? 'FIXED STORY FLOW' : 'DYNAMIC STORY ENGINE';
+        el.statusBox.innerHTML = '<strong>当前状态：</strong>' + escapeHtml(summarizeState(runtime.state, runtime.background.labels)) + '<br><strong>运行模式：</strong>' + escapeHtml(runtime.backendMode) + '。';
+        el.endingBox.textContent = runtime.endingText;
+        el.builderHint.textContent = '当前配置：' + sourceLabel() + ' + ' + engineLabel() + '。';
+        el.heroMeta.textContent = runtime.background.title + ' / ' + engineLabel();
+      }
+
+      function refreshBuilderHint() {
+        const scenario = getSelectedScenario();
+        if (appState.sourceType === 'system' && scenario) {
+          el.builderHint.textContent = '当前将从系统预设“' + scenario.title + '”开局，使用' + engineLabel() + '。';
+        } else {
+          const title = el.customTitle.value.trim() || '自定义剧情实验';
+          el.builderHint.textContent = '当前将从用户自定义背景“' + title + '”开局，使用' + engineLabel() + '。';
+        }
+      }
+
+      el.systemScenario.addEventListener('change', (event) => {
+        appState.selectedScenarioId = event.target.value;
+        refreshBuilderHint();
+      });
+      ['input', 'change'].forEach((name) => {
+        el.customTitle.addEventListener(name, refreshBuilderHint);
+        el.customGenre.addEventListener(name, refreshBuilderHint);
+        el.customBackground.addEventListener(name, refreshBuilderHint);
+        el.languageSelect.addEventListener(name, refreshBuilderHint);
+        el.toneSelect.addEventListener(name, refreshBuilderHint);
+        el.voiceSelect.addEventListener(name, refreshBuilderHint);
+        el.styleExtra.addEventListener(name, refreshBuilderHint);
+      });
+      el.startBtn.addEventListener('click', startRuntime);
+      el.restartBtn.addEventListener('click', startRuntime);
+      el.queryBtn.addEventListener('click', () => {
+        const scenario = getSelectedScenario();
+        if (!scenario) return;
+        const url = new URL(window.location.href);
+        url.searchParams.set('scenario', scenario.id);
+        window.history.replaceState({}, '', url.toString());
+        el.builderHint.textContent = '已把当前系统预设写入 URL：' + scenario.id;
+      });
+
+      function initialRender() {
+        createSourceChips();
+        createEngineChips();
+        fillSystemSelect();
+        fillTemplateChips();
+        const presetTemplate = templateSeeds[0];
+        if (presetTemplate) {
+          el.customTitle.value = presetTemplate.title;
+          el.customGenre.value = presetTemplate.genre;
+          el.customBackground.value = presetTemplate.background;
+        }
+        syncBuilderVisibility();
+        refreshBuilderHint();
+        el.actionsGrid.innerHTML = '<div class="empty">还没有开始。先在上方选择背景来源和交互引擎。</div>';
+        el.heroStats.innerHTML = '<div class="stat-card"><div class="label">状态</div><div class="value">未开始</div></div>';
+        el.metricsGrid.innerHTML = '<div class="metric-card"><div class="label">结局线</div><div class="value">待启动</div><div class="bar"><span style="width:0%"></span></div></div>';
+      }
+
+      initialRender();
+      if (requestedScenarioId) startRuntime();
+    })();
   </script>
 </body>
 </html>

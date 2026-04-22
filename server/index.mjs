@@ -4,6 +4,7 @@ import { appendUpload, getLatestReport, listUploadsByClient, saveReport } from '
 import { normalizePlatformKey, resolvePlatformUrl } from './lib/platformUrls.mjs';
 import { scrapeFromPlatformUploads, summarizeScrapesForLog } from './lib/profileScrape.mjs';
 import { buildFallbackSoulReport, tryOpenAISoulReport } from './lib/soulReportOpenAI.mjs';
+import { continueDynamicStory } from './lib/storyEngine.mjs';
 
 const app = express();
 const port = Number(process.env.API_PORT || 3001);
@@ -87,6 +88,16 @@ app.post('/api/analyze', async (req, res) => {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     return res.status(500).json({ error: '分析失败', detail: message });
+  }
+});
+
+app.post('/api/story/continue', async (req, res) => {
+  try {
+    const result = await continueDynamicStory(req.body || {});
+    return res.json({ success: true, ...result });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return res.status(500).json({ error: '故事续写失败', detail: message });
   }
 });
 
