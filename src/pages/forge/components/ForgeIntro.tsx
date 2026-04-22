@@ -646,7 +646,7 @@ export default function ForgeIntro({ onStart }: Props) {
       <canvas
         ref={canvasRef}
         className="absolute inset-0 w-full h-full"
-        style={{ display: 'block', cursor: 'pointer' }}
+        style={{ display: 'block', cursor: 'pointer', zIndex: 1 }}
         onClick={(e) => handleCanvasInteract(e.clientX, e.clientY)}
         onTouchStart={(e) => {
           const touch = e.touches[0];
@@ -654,8 +654,8 @@ export default function ForgeIntro({ onStart }: Props) {
         }}
       />
 
-      {/* Content overlay */}
-      <div className="relative z-10 flex flex-col items-center h-full pt-16 pb-32">
+      {/* Content overlay — pointer-events-none so canvas click still works, except interactive children */}
+      <div className="absolute inset-0 flex flex-col items-center h-full pt-16 pb-32 pointer-events-none" style={{ zIndex: 2 }}>
 
         {/* Title */}
         <div
@@ -759,23 +759,25 @@ export default function ForgeIntro({ onStart }: Props) {
         </div>
       </div>
 
-      {/* CTA button — fixed bottom */}
+      {/* CTA button — fixed bottom, above canvas */}
       <div
         className="fixed bottom-0 left-0 right-0 px-6 pb-10 pt-6"
         style={{
+          zIndex: 10,
           opacity: visible ? 1 : 0,
           transform: visible ? 'translateY(0)' : 'translateY(24px)',
           transition: 'opacity 0.7s ease 0.7s, transform 0.7s ease 0.7s',
           background: 'linear-gradient(to top, rgba(5,5,16,0.97) 55%, transparent)',
+          pointerEvents: 'auto',
         }}
       >
         <button
           onClick={handleStart}
           className="w-full py-4 rounded-2xl font-orbitron text-sm font-black tracking-widest cursor-pointer transition-all duration-200 active:scale-95 whitespace-nowrap relative overflow-hidden"
           style={{
-            background: 'linear-gradient(135deg, #6C5CE7 0%, #00D1FF 100%)',
+            background: 'linear-gradient(125deg, #3D1FA3 0%, #7B3FBE 30%, #C8527A 65%, #E8935A 100%)',
             color: '#fff',
-            boxShadow: '0 0 36px rgba(108,92,231,0.6), 0 0 70px rgba(0,209,255,0.25)',
+            boxShadow: '0 0 32px rgba(120,60,180,0.65), 0 0 64px rgba(200,82,122,0.3)',
             maxWidth: '400px',
             margin: '0 auto',
             display: 'block',
@@ -788,7 +790,7 @@ export default function ForgeIntro({ onStart }: Props) {
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
-              background: 'linear-gradient(105deg, transparent 25%, rgba(255,255,255,0.2) 50%, transparent 75%)',
+              background: 'linear-gradient(105deg, transparent 25%, rgba(255,255,255,0.18) 50%, transparent 75%)',
               animation: 'shimmerBtn 2.8s infinite',
             }}
           />

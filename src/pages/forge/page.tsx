@@ -9,7 +9,7 @@ type ForgeStep = 'intro' | 'upload' | 'tags' | 'report';
 
 const STEPS = [
   { id: 'upload', label: '素材上传', icon: 'ri-upload-cloud-line' },
-  { id: 'tags', label: '标签铸造', icon: 'ri-price-tag-3-line' },
+  { id: 'tags', label: '灵魂校准', icon: 'ri-heart-2-line' },
   { id: 'report', label: '星核报告', icon: 'ri-file-chart-line' },
 ];
 
