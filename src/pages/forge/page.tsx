@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import StarBackground from '@/components/feature/StarBackground';
+import ForgeIntro from './components/ForgeIntro';
 import StepUpload from './components/StepUpload';
 import StepTags from './components/StepTags';
 import StarCoreReport from './components/StarCoreReport';
 
-type ForgeStep = 'upload' | 'tags' | 'report';
+type ForgeStep = 'intro' | 'upload' | 'tags' | 'report';
 
 const STEPS = [
   { id: 'upload', label: '素材上传', icon: 'ri-upload-cloud-line' },
@@ -13,7 +14,7 @@ const STEPS = [
 ];
 
 export default function ForgePage() {
-  const [step, setStep] = useState<ForgeStep>('upload');
+  const [step, setStep] = useState<ForgeStep>('intro');
 
   const currentIdx = STEPS.findIndex((s) => s.id === step);
 
@@ -106,9 +107,13 @@ export default function ForgePage() {
 
         {/* Step content */}
         {step === 'upload' && <StepUpload onNext={() => setStep('tags')} />}
+
         {step === 'tags' && <StepTags onNext={() => setStep('report')} />}
         {step === 'report' && <StarCoreReport />}
       </div>
+
+      {/* Intro overlay */}
+      {step === 'intro' && <ForgeIntro onStart={() => setStep('upload')} />}
     </div>
   );
 }
