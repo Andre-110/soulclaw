@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - master
+      - feature/lbti-story-merge
   workflow_dispatch:
 
 permissions:
@@ -31,8 +32,29 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
       - name: Generate Scenario Assets
         run: python tools/generate_scenarios.py
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build app for Pages
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}/
+        run: npm run build
+
+      - name: Prepare Pages bundle
+        run: |
+          cp out/index.html out/404.html
+          cp out/storylab/scenario_sandbox.html out/scenario_sandbox.html
+          cp out/storylab/services.html out/services.html
+          cp out/storylab/generated_scenarios.js out/generated_scenarios.js
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -40,7 +62,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './docs'
+          path: './out'
 
       - name: Deploy to GitHub Pages
         id: deployment
