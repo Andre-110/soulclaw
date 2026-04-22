@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export interface DeepAnswers {
   musicStyle: string;
@@ -122,6 +122,16 @@ const QUESTIONS: {
   },
 ];
 
+interface Particle {
+  id: number;
+  x: number;
+  y: number;
+  angle: number;
+  color: string;
+  size: number;
+  distance: number;
+}
+
 interface Props {
   initialAnswers?: Partial<DeepAnswers>;
   onClose: () => void;
@@ -133,19 +143,75 @@ export default function DeepQuestionModal({ initialAnswers, onClose, onSave }: P
   const [current, setCurrent] = useState(0);
   const [customMode, setCustomMode] = useState(false);
   const [customInput, setCustomInput] = useState('');
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [celebrationPhase, setCelebrationPhase] = useState<'burst' | 'card' | 'done'>('burst');
+  const [displayedScore, setDisplayedScore] = useState(0);
+  const [particles, setParticles] = useState<Particle[]>([]);
+  const scoreTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const savedAnswersRef = useRef<DeepAnswers>(answers);
 
   const q = QUESTIONS[current];
-  const answered = QUESTIONS.filter((q) => answers[q.key] !== '').length;
+  const answered = QUESTIONS.filter((qq) => answers[qq.key] !== '').length;
   const progress = Math.round((answered / QUESTIONS.length) * 100);
 
+  useEffect(() => () => {
+    if (scoreTimerRef.current) clearInterval(scoreTimerRef.current);
+  }, []);
+
+  const triggerCelebration = (finalAnswers: DeepAnswers) => {
+    savedAnswersRef.current = finalAnswers;
+    const answeredCount = QUESTIONS.filter((qq) => finalAnswers[qq.key] !== '').length;
+    const targetScore = Math.min(100, Math.round((answeredCount / QUESTIONS.length) * 100));
+
+    const colors = ['#6C5CE7', '#00D1FF', '#A29BFE', '#FD79A8', '#FDCB6E', '#00B894'];
+    const newParticles: Particle[] = Array.from({ length: 48 }, (_, i) => ({
+      id: i,
+      x: 50 + (Math.random() - 0.5) * 10,
+      y: 50 + (Math.random() - 0.5) * 10,
+      angle: (i / 48) * 360 + Math.random() * 15,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      size: 4 + Math.random() * 7,
+      distance: 30 + Math.random() * 45,
+    }));
+
+    setParticles(newParticles);
+    setDisplayedScore(0);
+    setShowCelebration(true);
+    setCelebrationPhase('burst');
+
+    setTimeout(() => setCelebrationPhase('card'), 600);
+
+    if (scoreTimerRef.current) clearInterval(scoreTimerRef.current);
+    let count = 0;
+    scoreTimerRef.current = setInterval(() => {
+      const step = Math.ceil((targetScore - count) / 8) || 1;
+      count = Math.min(count + step, targetScore);
+      setDisplayedScore(count);
+      if (count >= targetScore) {
+        if (scoreTimerRef.current) clearInterval(scoreTimerRef.current);
+      }
+    }, 30);
+  };
+
+  const handleCelebrationDone = () => {
+    setCelebrationPhase('done');
+    setTimeout(() => {
+      setShowCelebration(false);
+      onSave(savedAnswersRef.current);
+    }, 350);
+  };
+
   const setAnswer = (val: string) => {
-    setAnswers((prev) => ({ ...prev, [q.key]: val }));
+    const newAnswers = { ...answers, [q.key]: val };
+    setAnswers(newAnswers);
     setCustomMode(false);
     setCustomInput('');
-    // Auto-advance to next question after a short delay
+    const isLast = current === QUESTIONS.length - 1;
     setTimeout(() => {
-      if (current < QUESTIONS.length - 1) {
+      if (!isLast) {
         setCurrent((c) => c + 1);
+      } else {
+        triggerCelebration(newAnswers);
       }
     }, 300);
   };
@@ -158,16 +224,152 @@ export default function DeepQuestionModal({ initialAnswers, onClose, onSave }: P
 
   const goNext = () => {
     if (current < QUESTIONS.length - 1) setCurrent(current + 1);
-    else onSave(answers);
+    else triggerCelebration(answers);
   };
 
   const goPrev = () => { if (current > 0) setCurrent(current - 1); };
 
   const handleSaveAll = () => onSave(answers);
 
+  const answeredForDisplay = QUESTIONS.filter((qq) => answers[qq.key] !== '').length;
+
   return (
     <div className="fixed inset-0 z-50 flex flex-col" style={{ background: '#0F0F1E' }}>
-      {/* Header */}
+
+      {/* ── Celebration overlay ── */}
+      {showCelebration && (
+        <div
+          className="absolute inset-0 z-50 flex flex-col items-center justify-center"
+          style={{
+            background: 'rgba(15,15,30,0.97)',
+            opacity: celebrationPhase === 'done' ? 0 : 1,
+            transition: 'opacity 0.35s ease',
+          }}
+        >
+          {/* Particle burst */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            {particles.map((p) => {
+              const rad = (p.angle * Math.PI) / 180;
+              const tx = Math.cos(rad) * p.distance;
+              const ty = Math.sin(rad) * p.distance;
+              return (
+                <div
+                  key={p.id}
+                  className="absolute rounded-full"
+                  style={{
+                    left: `${p.x}%`,
+                    top: `${p.y}%`,
+                    width: p.size,
+                    height: p.size,
+                    background: p.color,
+                    boxShadow: `0 0 ${p.size * 2}px ${p.color}`,
+                    transform: celebrationPhase !== 'burst'
+                      ? `translate(${tx}vw, ${ty}vh) scale(0)`
+                      : 'translate(-50%, -50%) scale(1)',
+                    opacity: celebrationPhase !== 'burst' ? 0 : 1,
+                    transition: `transform 1.2s cubic-bezier(0.2,0.8,0.3,1) ${p.id * 7}ms, opacity 1s ease ${380 + p.id * 7}ms`,
+                  }}
+                />
+              );
+            })}
+          </div>
+
+          {/* Card */}
+          <div
+            className="relative flex flex-col items-center gap-5 px-8 py-10 rounded-3xl mx-6 text-center"
+            style={{
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(108,92,231,0.45)',
+              backdropFilter: 'blur(16px)',
+              maxWidth: '340px',
+              width: '100%',
+              opacity: celebrationPhase === 'card' ? 1 : 0,
+              transform: celebrationPhase === 'card' ? 'scale(1) translateY(0)' : 'scale(0.82) translateY(24px)',
+              transition: 'opacity 0.5s ease, transform 0.55s cubic-bezier(0.34,1.56,0.64,1)',
+            }}
+          >
+            {/* Glow ring with score */}
+            <div className="relative w-24 h-24 flex items-center justify-center">
+              {/* Animated ring */}
+              <div
+                className="absolute inset-0 rounded-full"
+                style={{
+                  border: '2px solid rgba(108,92,231,0.6)',
+                  boxShadow: '0 0 20px rgba(108,92,231,0.4), inset 0 0 20px rgba(108,92,231,0.1)',
+                  animation: 'celebPulse 2s ease-in-out infinite',
+                }}
+              />
+              <div
+                className="absolute inset-0 rounded-full"
+                style={{
+                  background: 'radial-gradient(circle, rgba(108,92,231,0.25) 0%, transparent 70%)',
+                }}
+              />
+              <div className="flex flex-col items-center justify-center">
+                <span
+                  className="font-orbitron font-black leading-none"
+                  style={{ fontSize: '30px', color: '#C4BBFF' }}
+                >
+                  {displayedScore}
+                </span>
+                <span className="font-orbitron text-xs" style={{ color: 'rgba(196,187,255,0.55)' }}>%</span>
+              </div>
+            </div>
+
+            {/* Title */}
+            <div>
+              <p className="font-orbitron font-bold text-xl mb-2" style={{ color: '#E0EFFF', letterSpacing: '0.02em' }}>
+                星盘深度解锁！
+              </p>
+              <p className="text-sm font-noto leading-relaxed" style={{ color: 'rgba(224,239,255,0.55)' }}>
+                你已完成所有深度问题
+                <br />灵魂画像更立体，匹配精准度大幅提升
+              </p>
+            </div>
+
+            {/* Stat pills */}
+            <div className="flex gap-2 flex-wrap justify-center">
+              <div
+                className="px-3 py-1.5 rounded-full text-xs font-noto whitespace-nowrap"
+                style={{ background: 'rgba(0,209,255,0.12)', border: '1px solid rgba(0,209,255,0.3)', color: '#00D1FF' }}
+              >
+                <i className="ri-checkbox-circle-line mr-1" />
+                {answeredForDisplay} 题已答
+              </div>
+              <div
+                className="px-3 py-1.5 rounded-full text-xs font-noto whitespace-nowrap"
+                style={{ background: 'rgba(253,121,168,0.12)', border: '1px solid rgba(253,121,168,0.3)', color: '#FD79A8' }}
+              >
+                <i className="ri-sparkling-2-line mr-1" />
+                灵魂匹配提升
+              </div>
+              <div
+                className="px-3 py-1.5 rounded-full text-xs font-noto whitespace-nowrap"
+                style={{ background: 'rgba(0,184,148,0.12)', border: '1px solid rgba(0,184,148,0.3)', color: '#00B894' }}
+              >
+                <i className="ri-user-heart-line mr-1" />
+                画像已更新
+              </div>
+            </div>
+
+            {/* CTA */}
+            <button
+              onClick={handleCelebrationDone}
+              className="w-full h-12 flex items-center justify-center rounded-2xl cursor-pointer font-noto font-semibold text-sm gap-2 whitespace-nowrap active:scale-95 transition-transform duration-100"
+              style={{
+                background: 'linear-gradient(135deg, rgba(108,92,231,0.85), rgba(0,209,255,0.65))',
+                border: '1px solid rgba(108,92,231,0.55)',
+                color: '#E0EFFF',
+              }}
+            >
+              <i className="ri-rocket-line" style={{ fontSize: '16px' }} />
+              查看我的星盘
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Header ── */}
       <div className="flex items-center gap-3 px-4 pt-10 pb-3 shrink-0">
         <button onClick={onClose} className="w-9 h-9 flex items-center justify-center rounded-xl cursor-pointer" style={{ background: 'rgba(255,255,255,0.06)' }}>
           <i className="ri-arrow-left-line" style={{ color: '#E0EFFF' }} />
@@ -357,6 +559,13 @@ export default function DeepQuestionModal({ initialAnswers, onClose, onSave }: P
           )}
         </button>
       </div>
+
+      <style>{`
+        @keyframes celebPulse {
+          0%, 100% { box-shadow: 0 0 16px rgba(108,92,231,0.4), inset 0 0 16px rgba(108,92,231,0.1); }
+          50% { box-shadow: 0 0 32px rgba(108,92,231,0.7), inset 0 0 24px rgba(108,92,231,0.2); }
+        }
+      `}</style>
     </div>
   );
 }
