@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import StarBackground from '@/components/feature/StarBackground';
 import BottomTabBar from '@/components/feature/BottomTabBar';
 import SimulatorCard from './components/SimulatorCard';
@@ -68,6 +69,7 @@ function getInitialCheckIns(): CheckInRecord[] {
 }
 
 export default function AvatarPage() {
+  const navigate = useNavigate();
   const [activeSimulator, setActiveSimulator] = useState<Simulator | null>(null);
   const [checkIns, setCheckIns] = useState<CheckInRecord[]>(getInitialCheckIns);
   const [sayHiDone, setSayHiDone] = useState(() => localStorage.getItem('say_hi_today') === new Date().toDateString());
@@ -315,6 +317,85 @@ export default function AvatarPage() {
                   </button>
                 </div>
               )}
+            </div>
+
+            {/* ── Report forge module ── */}
+            <div
+              className="mb-7 rounded-2xl overflow-hidden"
+              style={{
+                background: 'linear-gradient(135deg, rgba(24,22,52,0.82) 0%, rgba(20,18,48,0.78) 55%, rgba(0,209,255,0.08) 100%)',
+                backdropFilter: 'blur(28px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(28px) saturate(180%)',
+                border: '1px solid rgba(116,185,255,0.18)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 12px 28px rgba(0,0,0,0.18)',
+              }}
+            >
+              <div className="px-4 pt-4 pb-3">
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <i className="ri-file-chart-line" style={{ color: '#74B9FF', fontSize: '15px' }} />
+                      <h2 className="font-orbitron text-sm font-bold" style={{ color: '#E0EFFF' }}>报告生成模块</h2>
+                    </div>
+                    <p className="text-xs font-noto leading-relaxed" style={{ color: 'rgba(224,239,255,0.56)' }}>
+                      先上传素材，再铸造标签，最后生成你的星核报告。它放在模拟器之前，适合先做画像，再去玩剧情分支。
+                    </p>
+                  </div>
+                  <div
+                    className="px-2.5 py-1 rounded-full text-[10px] font-noto font-semibold shrink-0"
+                    style={{ background: 'rgba(116,185,255,0.14)', border: '1px solid rgba(116,185,255,0.22)', color: '#74B9FF' }}
+                  >
+                    新入口
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 mb-3">
+                  {[
+                    { icon: 'ri-upload-cloud-line', label: '素材上传', hint: '截图 / 文本' },
+                    { icon: 'ri-price-tag-3-line', label: '标签铸造', hint: '风格 / 偏好' },
+                    { icon: 'ri-sparkling-2-line', label: '星核报告', hint: '人格总结' },
+                  ].map((item) => (
+                    <div
+                      key={item.label}
+                      className="rounded-2xl px-3 py-3"
+                      style={{
+                        background: 'rgba(255,255,255,0.04)',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                      }}
+                    >
+                      <div
+                        className="w-7 h-7 rounded-xl flex items-center justify-center mb-2"
+                        style={{ background: 'rgba(116,185,255,0.12)', border: '1px solid rgba(116,185,255,0.18)' }}
+                      >
+                        <i className={item.icon} style={{ color: '#74B9FF', fontSize: '13px' }} />
+                      </div>
+                      <div className="text-xs font-noto font-semibold" style={{ color: '#E0EFFF' }}>{item.label}</div>
+                      <div className="text-[10px] font-noto mt-1" style={{ color: 'rgba(224,239,255,0.42)' }}>{item.hint}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-[11px] font-noto leading-relaxed" style={{ color: 'rgba(224,239,255,0.46)' }}>
+                    生成后的报告更适合作为后续匹配和剧情体验的画像底板。
+                  </p>
+                  <button
+                    onClick={() => navigate('/forge')}
+                    className="shrink-0 px-4 py-2.5 rounded-2xl cursor-pointer transition-all duration-200 active:scale-95 whitespace-nowrap"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(108,92,231,0.85), rgba(0,209,255,0.65))',
+                      color: '#fff',
+                      border: '1px solid rgba(255,255,255,0.12)',
+                      boxShadow: '0 0 18px rgba(108,92,231,0.24)',
+                      fontFamily: "'Inter','Noto Sans SC',sans-serif",
+                      fontSize: '12px',
+                      fontWeight: 600,
+                    }}
+                  >
+                    去生成报告
+                  </button>
+                </div>
+              </div>
             </div>
 
             {/* ── Simulators ── */}

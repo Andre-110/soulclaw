@@ -57,6 +57,15 @@ export default function StarCoreReport() {
   const personalityBase = ['内省型', '探索型', '创作型', '观察型'][
     Math.floor(Math.random() * 4)
   ];
+  const reportHeadline = profile.tags.length >= 2
+    ? `${profile.tags[0]} × ${profile.tags[1]} 的稀有混合体`
+    : '低噪音、高辨识度的稀有型分身';
+  const socialHint = personalityStyle.includes('理性')
+    ? '更适合从共同兴趣切入，先建立稳定话题，再逐步打开情绪层。'
+    : '更适合从情绪共鸣切入，用细节和氛围感建立好感。';
+  const storyHint = personalityBase.includes('创作')
+    ? '最适合进入高反转、高表达欲、强风格化的剧情支线。'
+    : '更适合进入需要观察、判断和持续推进的剧情支线。';
 
   return (
     <div
@@ -159,6 +168,85 @@ export default function StarCoreReport() {
                 <span className="text-sm font-noto font-bold" style={{ color: '#E0EFFF' }}>
                   {item.value}
                 </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Report generation module */}
+        <div
+          className="p-4 rounded-2xl"
+          style={{
+            backdropFilter: 'blur(24px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+            background: 'linear-gradient(135deg, rgba(116,185,255,0.11) 0%, rgba(108,92,231,0.08) 100%)',
+            border: '1px solid rgba(116,185,255,0.22)',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)',
+          }}
+        >
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <div className="flex items-center gap-2">
+              <i className="ri-file-chart-line text-xs" style={{ color: '#74B9FF' }} />
+              <span className="text-xs font-orbitron tracking-wider" style={{ color: '#74B9FF' }}>
+                报告生成模块
+              </span>
+            </div>
+            <span
+              className="px-2.5 py-1 rounded-full text-[10px] font-noto font-semibold"
+              style={{ background: 'rgba(116,185,255,0.14)', border: '1px solid rgba(116,185,255,0.22)', color: '#81ECEC' }}
+            >
+              已深化
+            </span>
+          </div>
+
+          <div
+            className="rounded-2xl px-3.5 py-3 mb-3"
+            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+          >
+            <div className="text-[11px] font-noto mb-1.5" style={{ color: 'rgba(224,239,255,0.48)' }}>
+              星核主结论
+            </div>
+            <div className="text-sm font-noto font-bold leading-relaxed" style={{ color: '#E0EFFF' }}>
+              {reportHeadline}
+            </div>
+            <p className="text-xs font-noto mt-2 leading-relaxed" style={{ color: 'rgba(224,239,255,0.68)' }}>
+              你的资料不是“高热闹型”人格，更像会在少数特定圈层中迅速被识别的高密度表达者。
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-2.5">
+            {[
+              {
+                icon: 'ri-radar-line',
+                title: '社交触发点',
+                body: socialHint,
+                color: '#00D1FF',
+              },
+              {
+                icon: 'ri-quill-pen-line',
+                title: '剧情适配度',
+                body: storyHint,
+                color: '#A29BFE',
+              },
+              {
+                icon: 'ri-lightbulb-flash-line',
+                title: '后续建议',
+                body: '先保留这份报告，再去模拟器里测试不同玩法，后续可以反向校准你的分身画像。',
+                color: '#FDCB6E',
+              },
+            ].map((item) => (
+              <div
+                key={item.title}
+                className="rounded-2xl px-3.5 py-3"
+                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
+              >
+                <div className="flex items-center gap-2 mb-1.5">
+                  <i className={item.icon} style={{ color: item.color, fontSize: '13px' }} />
+                  <span className="text-xs font-noto font-semibold" style={{ color: '#E0EFFF' }}>{item.title}</span>
+                </div>
+                <p className="text-xs font-noto leading-relaxed" style={{ color: 'rgba(224,239,255,0.62)' }}>
+                  {item.body}
+                </p>
               </div>
             ))}
           </div>
